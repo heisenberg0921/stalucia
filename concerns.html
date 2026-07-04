@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit a Concern - Barangay Sta. Lucia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --green: #059669;
+            --green-dark: #047857;
+            --green-light: #d1fae5;
+            --green-50: #f0fdf4;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --bg: #f9fafb;
+            --white: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --text: #f1f5f9;
+            --muted: #a7f3d0;
+            --border: #14532d;
+            --bg: #022c22;
+            --white: #064e3b;
+            --green-50: #0d2818;
+            --green-light: #14532d;
+        }
+
+        /* Dark mode extras */
+        [data-theme="dark"] input,
+        [data-theme="dark"] select,
+        [data-theme="dark"] textarea {
+            background: #0d2818;
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        [data-theme="dark"] .concern-reply {
+            background: #0d2818;
+            border-left-color: #10b981;
+        }
+
+        [data-theme="dark"] .concern-reply p {
+            color: #a7f3d0;
+        }
+
+        .dark-mode-toggle {
+            background: rgba(255, 255, 255, .15);
+            border: none;
+            border-radius: 8px;
+            padding: 6px 10px;
+            width: 44px;
+            text-align: center;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background .2s;
+            color: white;
+            line-height: 1;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, .25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── NAV ── */
+        nav {
+            background: linear-gradient(135deg, var(--green), var(--green-dark));
+            color: white;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .nav-brand img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, .5);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, .85);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 8px;
+            transition: all .2s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background: rgba(255, 255, 255, .2);
+            color: white;
+        }
+
+        .nav-links a#logoutBtn:hover {
+            background: rgba(239, 68, 68, .3);
+        }
+
+        /* ── MAIN ── */
+        .main {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 32px 20px;
+        }
+
+        /* ── STATS ── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .05);
+        }
+
+        .stat-card .num {
+            font-size: 32px;
+            font-weight: 800;
+        }
+
+        .stat-card .label {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .stat-card.yellow .num {
+            color: #d97706;
+        }
+
+        .stat-card.blue .num {
+            color: #2563eb;
+        }
+
+        .stat-card.green .num {
+            color: var(--green);
+        }
+
+        .stat-card.red .num {
+            color: #dc2626;
+        }
+
+        /* ── CARD ── */
+        .card {
+            background: var(--white);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+            margin-bottom: 28px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .card-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+
+        /* ── FORM ── */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        input,
+        select,
+        textarea {
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color .2s;
+            background: #fff;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, .1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, var(--green), var(--green-dark));
+            color: white;
+            border: none;
+            padding: 13px 28px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all .2s;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, .25);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(5, 150, 105, .35);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        /* ── STATUS BADGES ── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid transparent;
+        }
+
+        .badge-pending {
+            background: #fefce8;
+            color: #a16207;
+            border-color: #fde68a;
+        }
+
+        .badge-progress {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-color: #bfdbfe;
+        }
+
+        .badge-resolved {
+            background: var(--green-light);
+            color: var(--green-dark);
+            border-color: #a7f3d0;
+        }
+
+        .badge-rejected {
+            background: #fef2f2;
+            color: #b91c1c;
+            border-color: #fecaca;
+        }
+
+        /* ── CONCERN ITEMS ── */
+        .concern-item {
+            border: 1.5px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: box-shadow .2s;
+            background: var(--white);
+        }
+
+        .concern-item:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, .08);
+        }
+
+        .concern-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .concern-title {
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .concern-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .concern-category {
+            background: var(--green-50);
+            color: var(--green-dark);
+            border: 1px solid var(--green-light);
+            padding: 2px 10px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .concern-desc {
+            font-size: 14px;
+            color: #374151;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .concern-reply {
+            background: var(--green-50);
+            border-left: 4px solid var(--green);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 12px;
+        }
+
+        .concern-reply p {
+            font-size: 13px;
+            color: #065f46;
+        }
+
+        .concern-assigned {
+            font-size: 12px;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-delete {
+            background: none;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .btn-delete:hover {
+            background: #fef2f2;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--muted);
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .empty-state p {
+            font-size: 15px;
+        }
+
+        /* ── TOAST ── */
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 22px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            transform: translateY(100px);
+            transition: transform .3s ease;
+            z-index: 9999;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .15);
+        }
+
+        #toast.show {
+            transform: translateY(0);
+        }
+
+        #toast.success {
+            background: var(--green);
+        }
+
+        #toast.error {
+            background: #dc2626;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 640px) {
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full {
+                grid-column: 1;
+            }
+
+            nav {
+                padding: 0 16px;
+            }
+
+            .nav-links a {
+                padding: 5px 8px;
+                font-size: 13px;
+            }
+
+            .main {
+                padding: 16px;
+            }
+        }
+    </style>
+    <link rel="icon" type="image/jpeg" href="barangay-sun-logo.jpg">
+</head>
+
+<body>
+    <nav>
+        <div class="nav-brand">
+            <img src="barangay-sun-logo.jpg" alt="Logo">
+            <span>Barangay Services</span>
+        </div>
+        <div class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="equipment.html">Equipment</a>
+            <a href="concerns.html" class="active">Concerns</a>
+            <a href="court-scheduling.html">Booking</a>
+            <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">🌙</button>
+            <a href="#" id="logoutBtn">Logout</a>
+        </div>
+    </nav>
+
+    <div class="main">
+        <!-- Submit Concern Form -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Submit a Concern</h2>
+            </div>
+            <div class="card-body">
+                <form id="concernForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="concernCategory">Category <span style="color:#dc2626">*</span></label>
+                            <select id="concernCategory" required>
+                                <option value="">-- Select Category --</option>
+                                <option value="Infrastructure">Infrastructure</option>
+                                <option value="Public Safety">Public Safety</option>
+                                <option value="Sanitation">Sanitation</option>
+                                <option value="Noise Complaint">Noise Complaint</option>
+                                <option value="Illegal Structures">Illegal Structures</option>
+                                <option value="Environmental">Environmental</option>
+                                <option value="Others">Others</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="concernAddress">Address / Location <span style="color:#dc2626">*</span></label>
+                            <input type="text" id="concernAddress" placeholder="e.g. Block 5, Sitio Masagana" required>
+                        </div>
+                        <div class="form-group full">
+                            <label for="concernTitle">Title <span style="color:#dc2626">*</span></label>
+                            <input type="text" id="concernTitle" placeholder="Brief title for your concern" required>
+                        </div>
+                        <div class="form-group full">
+                            <label for="concernDescription">Description <span style="color:#dc2626">*</span></label>
+                            <textarea id="concernDescription" placeholder="Describe your concern in detail..."
+                                required></textarea>
+                        </div>
+                        <div class="form-group full">
+                            <label for="concernProof">Proof / Supporting Document <span style="color:#dc2626">*</span></label>
+                            <div id="concernImagePreviewWrap" style="display:none;margin-bottom:10px;">
+                                <img id="concernImagePreview" src="" alt="Preview" style="max-width:100%;max-height:160px;border-radius:10px;border:1.5px solid var(--border);object-fit:cover;">
+                            </div>
+                            <div id="concernFilePreviewWrap" style="display:none;align-items:center;gap:8px;margin-bottom:10px;background:var(--green-50);border:1.5px solid var(--green-light);border-radius:10px;padding:10px 14px;">
+                                <span style="font-size:20px;">📄</span>
+                                <span id="concernFileNameLabel" style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+                            </div>
+                            <input type="file" id="concernProof" accept="image/*,application/pdf" required>
+                            <div style="font-size:12px;color:var(--muted);margin-top:6px;">Attach a photo or PDF as proof. This is required for all concerns.</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:20px;">
+                        <button type="submit" class="btn-submit">
+                            <span>📨</span> Submit Concern
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- My Concerns History -->
+        <div class="card" style="margin-top:24px;">
+            <div class="card-header">
+                <h2>My Submitted Concerns</h2>
+            </div>
+            <div class="card-body">
+                <div id="myConcernsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/crypto-utils.js"></script>
+        <script src="js/app.js"></script>
+    <script src="js/darkmode.js"></script>
+    <script>
+        // RBAC: Residents only — admins are redirected to admin.html
+        if (!requireUser()) { throw new Error('RBAC redirect'); }
+        const currentUser = getCurrentUser();
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', e => { e.preventDefault(); logoutUser(); });
+
+        // Toast
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = `show ${type}`;
+            setTimeout(() => toast.className = '', 3200);
+        }
+
+        // Proof file preview (image or PDF)
+        document.getElementById('concernProof').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            const imgWrap = document.getElementById('concernImagePreviewWrap');
+            const img = document.getElementById('concernImagePreview');
+            const fileWrap = document.getElementById('concernFilePreviewWrap');
+            const fileNameLabel = document.getElementById('concernFileNameLabel');
+
+            imgWrap.style.display = 'none';
+            fileWrap.style.display = 'none';
+
+            if (!file) return;
+
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = ev => { img.src = ev.target.result; imgWrap.style.display = 'block'; };
+                reader.readAsDataURL(file);
+            } else if (file.type === 'application/pdf') {
+                fileNameLabel.textContent = file.name;
+                fileWrap.style.display = 'flex';
+            } else {
+                showToast('Only image or PDF files are accepted.', 'error');
+                e.target.value = '';
+            }
+        });
+
+        // Render "My Concerns" history
+        function renderMyConcerns(concerns) {
+            const list = document.getElementById('myConcernsList');
+            if (!concerns.length) {
+                list.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>You haven\'t submitted any concerns yet.</p></div>';
+                return;
+            }
+
+            const statusMeta = {
+                pending: { cls: 'badge-pending', label: 'Pending' },
+                open: { cls: 'badge-pending', label: 'Pending' },
+                'in-progress': { cls: 'badge-progress', label: 'In Progress' },
+                resolved: { cls: 'badge-resolved', label: 'Resolved' },
+                rejected: { cls: 'badge-rejected', label: 'Rejected' }
+            };
+            const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+            list.innerHTML = concerns.map(c => {
+                const meta = statusMeta[c.status] || statusMeta.pending;
+                let desc = c.description || '';
+                let attachmentHtml = '';
+
+                if (desc.includes('[ATTACHED_IMAGE_DATA]')) {
+                    const parts = desc.split('[ATTACHED_IMAGE_DATA]');
+                    desc = parts[0].replace(/Usern/g, '').trim();
+                    const url = parts[1].replace(/Usern/g, '').trim();
+                    attachmentHtml = `<div style="margin:10px 0;"><img src="${url}" style="max-height:140px;border-radius:10px;border:1px solid var(--border);object-fit:cover;" alt="Attached photo"></div>`;
+                } else if (desc.includes('[ATTACHED_FILE_DATA]')) {
+                    const parts = desc.split('[ATTACHED_FILE_DATA]');
+                    desc = parts[0].replace(/Usern/g, '').trim();
+                    const raw = parts[1].replace(/Usern/g, '').trim();
+                    const [url, name] = raw.split('|');
+                    attachmentHtml = `<div style="margin:10px 0;"><a href="${url}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;">📄 ${esc(name || 'View Document')}</a></div>`;
+                }
+
+                const replyHtml = c.response ? `<div class="concern-reply"><p>${esc(c.response)}</p></div>` : '';
+                const canDelete = (!c.status || c.status === 'pending' || c.status === 'open');
+                const deleteBtn = canDelete ? `<button class="btn-delete" onclick="handleDeleteConcern(${c.id})">Delete</button>` : '';
+                const dateStr = c.createdAt ? new Date(c.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+
+                return `<div class="concern-item">
+                    <div class="concern-item-header">
+                        <div class="concern-title">${esc(c.title)}</div>
+                        <span class="badge ${meta.cls}">${meta.label}</span>
+                    </div>
+                    <div class="concern-meta">
+                        <span class="concern-category">${esc(c.category)}</span>
+                        <span>📍 ${esc(c.address)}</span>
+                        <span>🗓️ ${dateStr}</span>
+                    </div>
+                    <div class="concern-desc">${esc(desc)}</div>
+                    ${attachmentHtml}
+                    ${replyHtml}
+                    <div style="display:flex;justify-content:flex-end;">${deleteBtn}</div>
+                </div>`;
+            }).join('');
+        }
+
+        async function loadMyConcerns() {
+            const concerns = await getMyConcerns();
+            renderMyConcerns(concerns);
+        }
+
+        async function handleDeleteConcern(id) {
+            if (!confirm('Delete this concern?')) return;
+            const res = await deleteConcern(id);
+            if (res.success) {
+                showToast('Concern deleted', 'success');
+                loadMyConcerns();
+            } else {
+                showToast(res.message || 'Could not delete concern', 'error');
+            }
+        }
+
+        // Load data on page load
+        (async function init() {
+            await loadMyConcerns();
+        })();
+
+        // Submit concern form
+        document.getElementById('concernForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const btn = this.querySelector('button[type="submit"]');
+
+            const proofInput = document.getElementById('concernProof');
+            if (!proofInput.files.length) {
+                showToast('Please attach proof (photo or PDF) to support your concern.', 'error');
+                return;
+            }
+            const proofFile = proofInput.files[0];
+            const okType = proofFile.type.startsWith('image/') || proofFile.type === 'application/pdf';
+            if (!okType) {
+                showToast('Only image or PDF files are accepted as proof.', 'error');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+
+            const result = await submitConcern(
+                document.getElementById('concernCategory').value,
+                document.getElementById('concernTitle').value,
+                document.getElementById('concernDescription').value,
+                document.getElementById('concernAddress').value,
+                proofFile
+            );
+
+            btn.disabled = false;
+            btn.innerHTML = '<span>📨</span> Submit Concern';
+
+            if (result.success) {
+                showToast('Concern submitted successfully!', 'success');
+                this.reset();
+                document.getElementById('concernImagePreviewWrap').style.display = 'none';
+                document.getElementById('concernFilePreviewWrap').style.display = 'none';
+                await loadMyConcerns();
+            } else {
+                showToast(result.message || 'Could not submit concern', 'error');
+            }
+        });
+    </script>
+</body>
+
+</html>

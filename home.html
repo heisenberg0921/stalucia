@@ -1,0 +1,2331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Barangay Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script><script>tailwind.config = { darkMode: ['class', '[data-theme="dark"]'] }</script>
+    <script>
+      tailwind.config = {
+        corePlugins: {
+          preflight: false,
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="css/premium-dashboard.css">
+    <style type="text/disabled">
+        :root {
+            --primary-50: #ecfdf5;
+            --primary-100: #d1fae5;
+            --primary-200: #a7f3d0;
+            --primary-300: #6ee7b7;
+            --primary-400: #34d399;
+            --primary-500: #10b981;
+            --primary-600: #059669;
+            --primary-700: #047857;
+            --primary-800: #065f46;
+            --primary-900: #064e3b;
+            --primary-xl: #022c22;
+
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --text-secondary: #475569;
+            --muted: #94a3b8;
+            --border: #f1f5f9;
+
+            --success: #10b981;
+            --danger: #ef4444;
+            --danger-bg: #fef2f2;
+            --warning-bg: #fffbeb;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
+            --transition: all 0.25s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        .dashboard-header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--primary-200);
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-logo {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            border: 2px solid var(--primary-200);
+            object-fit: cover;
+        }
+
+        .header-brand {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-brand .brand {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--primary-xl);
+        }
+
+        .header-brand .subtitle {
+            font-size: 11px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-right: 16px;
+            border-right: 1px solid var(--border);
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            text-align: right;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .user-role {
+            font-size: 11px;
+            color: var(--primary-600);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--primary-100);
+            color: var(--primary-700);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn:hover {
+            border-color: var(--primary-300);
+            color: var(--primary-700);
+        }
+
+        /* LAYOUT */
+        .dashboard-container {
+            display: flex;
+            min-height: calc(100vh - 70px);
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .quick-stats {
+            background: var(--primary-50);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .quick-stats h3 {
+            font-size: 12px;
+            color: var(--primary-800);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .quick-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--primary-900);
+            padding: 4px 0;
+            font-weight: 500;
+        }
+
+        .quick-stat strong {
+            background: #fff;
+            padding: 2px 8px;
+            border-radius: 20px;
+            color: var(--primary-700);
+        }
+
+        .sidebar-title {
+            font-size: 11px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            margin: 16px 0 8px 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-item:hover {
+            background: var(--primary-50);
+            color: var(--primary-700);
+        }
+
+        .nav-item.active {
+            background: var(--primary-500);
+            color: #fff;
+        }
+
+        .nav-item.active .nav-icon {
+            color: #fff;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            padding: 32px;
+            background: var(--bg);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .content-panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .content-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* PANELS */
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .panel-header h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary-900);
+        }
+
+        /* MISC COMPONENTS */
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge.pending {
+            background: var(--warning-bg);
+            color: #d97706;
+        }
+
+        .badge.approved,
+        .badge.resolved {
+            background: var(--primary-50);
+            color: var(--primary-600);
+        }
+
+        .badge.rejected {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            background: #fff;
+            border-radius: var(--radius-lg);
+            border: 1px dashed var(--muted);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding: 16px;
+            }
+
+            .main-content {
+                padding: 16px;
+            }
+
+            .header-brand .subtitle,
+            .user-info {
+                display: none;
+            }
+        }
+
+        /* WELCOME BANNER */
+        .welcome-banner {
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            border-radius: 20px;
+            padding: 28px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(4, 120, 87, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-banner::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 300px;
+            height: 100%;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNMCAwbDEwMCAxMDBWMHoiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=') no-repeat right center;
+            background-size: cover;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .welcome-text h2 {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+
+        .welcome-text p {
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .welcome-icon {
+            font-size: 48px;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+        }
+
+        /* STATS ROW */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border: 1.5px solid #e5e7eb;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        .stat-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .sib-blue {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .sib-green {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        .sib-amber {
+            background: #fffbeb;
+            color: #d97706;
+        }
+
+        .stat-val {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1f2937;
+            line-height: 1.1;
+        }
+
+        .stat-lbl {
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* SECTION TITLE */
+        .sec-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #064e3b;
+            margin-bottom: 16px;
+        }
+
+        /* QUICK ACTIONS */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .action-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px 18px;
+            text-align: center;
+            border: 1.5px solid #e5e7eb;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: all 0.25s;
+        }
+
+        .action-card:hover {
+            border-color: #10b981;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.12);
+            transform: translateY(-3px);
+        }
+
+        .ac-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .action-card h4 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #064e3b;
+            margin-bottom: 5px;
+        }
+
+        .action-card p {
+            font-size: 11px;
+            color: #9ca3af;
+            line-height: 1.5;
+        }
+
+        /* CONTENT PANEL */
+        .panel {
+            background: #fff;
+            border-radius: 18px;
+            padding: 26px;
+            border: 1.5px solid #e5e7eb;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .panel.hidden {
+            display: none;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #f3f4f6;
+            padding-bottom: 16px;
+        }
+
+        .panel-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #064e3b;
+        }
+
+        /* Equipment items */
+        .equip-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 14px;
+        }
+
+        .equip-card {
+            background: #fafafa;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 18px;
+            transition: all 0.2s;
+        }
+
+        .equip-card:hover {
+            border-color: #a7f3d0;
+        }
+
+        .equip-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .equip-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .equip-emoji {
+            font-size: 26px;
+        }
+
+        .equip-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #064e3b;
+        }
+
+        .equip-desc {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 1px;
+        }
+
+        .equip-count {
+            font-size: 14px;
+            font-weight: 700;
+            color: #047857;
+        }
+
+        .progress {
+            background: #e5e7eb;
+            border-radius: 6px;
+            height: 5px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 6px;
+        }
+
+        .pf-green {
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+
+        .pf-yellow {
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        }
+
+        .pf-red {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+
+        .btn-borrow {
+            width: 100%;
+            padding: 9px;
+            border-radius: 10px;
+            background: #ecfdf5;
+            border: 1.5px solid #a7f3d0;
+            color: #047857;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-borrow:hover {
+            background: #d1fae5;
+            border-color: #6ee7b7;
+        }
+
+        /* Status badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-pending {
+            background: #fffbeb;
+            color: #d97706;
+            border: 1px solid #fde68a;
+        }
+
+        .badge-approved,
+        .badge-resolved {
+            background: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
+
+        .badge-rejected {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .badge-returned {
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+        }
+
+        /* List items (borrowings / concerns) */
+        .list-item {
+            background: #fafafa;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 10px;
+            transition: border-color 0.2s;
+        }
+
+        .list-item:hover {
+            border-color: #a7f3d0;
+        }
+
+        .li-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .li-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #064e3b;
+        }
+
+        .li-meta {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+
+        .li-body {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .li-response {
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #1d4ed8;
+        }
+
+        /* Concern Form */
+        .concern-form .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .concern-form .fg {
+            margin-bottom: 14px;
+        }
+
+        .concern-form label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .concern-form input,
+        .concern-form select,
+        .concern-form textarea {
+            width: 100%;
+            padding: 11px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 16px;
+            /* prevents iOS auto-zoom */
+            font-family: inherit;
+            color: #1f2937;
+            background: #fff;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .concern-form input:focus,
+        .concern-form select:focus,
+        .concern-form textarea:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .concern-form input::placeholder,
+        .concern-form textarea::placeholder {
+            color: #9ca3af;
+        }
+
+        .concern-form textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        .btn-submit {
+            padding: 11px 28px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            box-shadow: 0 3px 12px rgba(16, 185, 129, 0.3);
+            transition: all 0.2s;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 18px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .empty-state span {
+            font-size: 36px;
+            display: block;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        /* Toast */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 999;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            transform: translateY(80px);
+            transition: transform 0.3s ease;
+            pointer-events: none;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+    
+        /* COURT BOOKINGS & MODALS CSS */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .cal-header {
+            text-align: center;
+            font-weight: 700;
+            color: var(--muted);
+            padding: 8px 0;
+            font-size: 13px;
+        }
+        
+        .cal-day {
+            padding: 10px 4px;
+            text-align: center;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .cal-day:hover {
+            transform: scale(1.05);
+        }
+        
+        .cal-day.past {
+            background: #f1f5f9;
+            color: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .cal-day.available {
+            background: var(--primary-50);
+            color: var(--primary-700);
+        }
+        .cal-day.available:hover {
+            background: var(--primary-100);
+        }
+        
+        .cal-day.booked {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+        
+        .cal-day.event {
+            background: #f3e8ff;
+            color: #7e22ce;
+        }
+        
+        .cal-day.selected {
+            background: #dbeafe;
+            color: #1d4ed8;
+            border: 2px solid #3b82f6;
+        }
+        
+        .cal-day.today {
+            border: 2px solid var(--primary-500);
+        }
+        
+        .cal-badge {
+            font-size: 10px;
+            margin-top: 4px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.6);
+        }
+
+        .venue-toggle {
+            display: flex;
+            gap: 8px;
+            background: var(--border);
+            padding: 4px;
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
+            display: inline-flex;
+        }
+        
+        .venue-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .venue-btn.active {
+            background: var(--surface);
+            color: var(--primary-700);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .event-card {
+            background: linear-gradient(135deg, #a855f7, #7e22ce);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            color: white;
+        }
+
+        /* MODAL CSS */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .modal-content {
+            background: var(--surface);
+            width: 100%;
+            max-width: 500px;
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            transform: translateY(20px);
+            transition: var(--transition);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .modal-close {
+            background: transparent;
+            border: none;
+            font-size: 24px;
+            color: var(--muted);
+            cursor: pointer;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 15px;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-400);
+        }
+
+        /* DARK MODE SUPPORT */
+        [data-theme="dark"] .cal-day.past { background: #0f172a; color: #475569; }
+        [data-theme="dark"] .cal-day.available { background: #064e3b; color: #34d399; }
+        [data-theme="dark"] .cal-day.available:hover { background: #047857; }
+        [data-theme="dark"] .cal-day.booked { background: #450a0a; color: #fca5a5; }
+        [data-theme="dark"] .cal-day.event { background: #3b0764; color: #d8b4fe; }
+        [data-theme="dark"] .venue-btn.active { background: #022c22; color: #34d399; }
+        [data-theme="dark"] .modal-content { background: #064e3b; color: #f1f5f9; }
+        [data-theme="dark"] .form-control { background: #022c22; border-color: #047857; color: white; }
+        [data-theme="dark"] .equip-card { background: #064e3b; border-color: #047857; }
+        [data-theme="dark"] .equip-card:hover { border-color: #34d399; }
+        [data-theme="dark"] .equip-name { color: #f8fafc; }
+        [data-theme="dark"] .list-item { background: #064e3b; border-color: #047857; }
+        [data-theme="dark"] .li-title { color: #f8fafc; }
+        [data-theme="dark"] .li-body { color: #cbd5e1; }
+        [data-theme="dark"] .concern-form input, [data-theme="dark"] .concern-form select, [data-theme="dark"] .concern-form textarea { background: #022c22; border-color: #047857; color: #f8fafc; }
+        [data-theme="dark"] .sec-title, [data-theme="dark"] .action-card h4, [data-theme="dark"] .panel-header h3 { color: #34d399; }
+
+        /* FAB for User Home */
+        .mobile-fab {
+            display: none;
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            font-size: 24px;
+            border: none;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+            z-index: 1000;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .mobile-fab:active {
+            transform: scale(0.92);
+        }
+
+        /* Desktop specific overrides for Mobile-only elements */
+        .mobile-only-header { display: none; }
+        .mobile-close-btn { display: none; }
+        #concernFormBackdrop { display: none; }
+
+        @media (max-width: 768px) {
+            .mobile-fab {
+                display: flex;
+            }
+
+            /* Divergent UI: Convert Inline Concern Form to Native Bottom Sheet */
+            #concernForm {
+                position: fixed !important;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                background: white;
+                z-index: 2000;
+                padding: 24px 24px 40px !important;
+                border-radius: 24px 24px 0 0;
+                box-shadow: 0 -10px 40px rgba(0,0,0,0.2) !important;
+                transform: translateY(100%);
+                transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                max-height: 90vh !important;
+                overflow-y: auto !important;
+                margin: 0 !important;
+            }
+
+            #concernForm.show-sheet {
+                transform: translateY(0);
+            }
+
+            #concernFormBackdrop.show-backdrop {
+                display: block;
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 1999;
+                backdrop-filter: blur(4px);
+            }
+
+            .mobile-only-header { 
+                display: block; 
+                font-size: 20px; 
+                font-weight: 800; 
+                margin-bottom: 20px;
+                color: #064e3b;
+            }
+
+            .mobile-close-btn {
+                display: flex;
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                background: #f3f4f6;
+                border: none;
+                align-items: center;
+                justify-content: center;
+                font-size: 16px;
+                color: #4b5563;
+                cursor: pointer;
+            }
+
+            /* Hide Desktop Headers on Mobile */
+            #concerns-panel .panel-header {
+                display: none !important;
+            }
+        }
+    </style>
+    <link rel="icon" type="image/jpeg" href="barangay-sun-logo.jpg">
+</head>
+
+<body>
+    <header class="dashboard-header">
+        <div class="header-left">
+            <img src="barangay-sun-logo.jpg" alt="Logo" class="header-logo">
+            <div class="header-brand">
+                <span class="brand">Barangay Services</span>
+                <span class="subtitle">User Dashboard</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="user-menu">
+                <div class="user-info">
+                    <span class="user-name" id="userName">Loading...</span>
+                    <span class="user-role" id="userRole">Resident</span>
+                </div>
+                <div class="user-avatar" id="userAvatar">U</div>
+            </div>
+            <button class="btn-dark-toggle dark-mode-toggle" onclick="toggleDarkMode()"
+                title="Toggle Dark Mode">🌙</button>
+            <button class="btn" onclick="window.location.href='user-settings.html'">⚙️ <span>Settings</span></button>
+            <button class="btn" onclick="logoutUser()"><span>Logout</span></button>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="sidebar">
+            <div class="sidebar-title" style="margin-top: 5px;">Menu</div>
+
+            <button class="nav-item active" data-panel="equipment-panel" style="margin-top: 10px;">
+                <div class="nav-icon">🪑</div>
+                <span>Borrow Equipment</span>
+            </button>
+
+            <button class="nav-item" data-panel="concerns-panel">
+                <div class="nav-icon">📋</div>
+                <span>Submit Concern</span>
+            </button>
+
+            <button class="nav-item" data-panel="court-bookings-panel">
+                <div class="nav-icon">🏀</div>
+                <span>Court Reservations</span>
+            </button>
+
+            <button class="nav-item" data-panel="my-borrowings-panel">
+                <div class="nav-icon">📦</div>
+                <span>My Borrowings</span>
+            </button>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+
+            <!-- EQUIPMENT PANEL -->
+            <div id="equipment-panel" class="content-panel active">
+                <!-- Welcome text injected into the top of the Equipment Panel -->
+                <div class="welcome-banner" style="margin-bottom: 26px;">
+                    <div class="welcome-text">
+                        <h2>👋 Welcome, <span id="welcomeName">User</span>!</h2>
+                        <p>Here you can view available items and request to borrow them.</p>
+                    </div>
+                    <div class="welcome-icon">🪑</div>
+                </div>
+
+                <div class="panel-header"
+                    style="margin-bottom: 20px; border-bottom: 1px solid #f3f4f6; padding-bottom: 16px;">
+                    <h3 style="font-size: 16px; font-weight: 700; color: #064e3b;">🏃 Available Equipment</h3>
+                </div>
+                <div id="equipmentList" class="equip-grid"></div>
+            </div>
+
+            <!-- CONCERNS PANEL -->
+            <div id="concerns-panel" class="content-panel">
+                <div class="panel-header"
+                    style="margin-bottom: 20px; border-bottom: 1px solid #f3f4f6; padding-bottom: 16px;">
+                    <h3 style="font-size: 16px; font-weight: 700; color: #064e3b;">📋 Submit a Concern</h3>
+                </div>
+                
+                <div id="concernFormBackdrop" onclick="toggleConcernSheet()"></div>
+                <form id="concernForm" class="concern-form" style="max-width: 680px;">
+                    <button type="button" class="mobile-close-btn" onclick="toggleConcernSheet()">✕</button>
+                    <div class="mobile-only-header">Submit Concern</div>
+                    <div class="fg">
+                        <label>Your Address</label>
+                        <input type="text" id="concernAddress" required placeholder="e.g., Block 5, Lot 10, Sta. Lucia">
+                    </div>
+                    <div class="form-grid">
+                        <div class="fg">
+                            <label>Category</label>
+                            <select id="concernCategory" required>
+                                <option value="">Select a category...</option>
+                                <option value="infrastructure">🏗️ Infrastructure</option>
+                                <option value="sanitation">🧹 Sanitation</option>
+                                <option value="security">👮 Security</option>
+                                <option value="noise">🔊 Noise</option>
+                                <option value="other">📝 Other</option>
+                            </select>
+                        </div>
+                        <div class="fg">
+                            <label>Title / Subject</label>
+                            <input type="text" id="concernTitle" required placeholder="Brief title of your concern">
+                        </div>
+                    </div>
+                    <div class="fg">
+                        <label>Detailed Description</label>
+                        <textarea id="concernDescription" required
+                            placeholder="Please describe your concern in detail..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">Submit Concern →</button>
+                </form>
+
+                <div style="margin-top: 30px; border-top: 1px solid #f3f4f6; padding-top: 24px;">
+                    <h4 style="font-size: 15px; font-weight: 700; color: #064e3b; margin-bottom: 14px;">My Submitted
+                        Concerns</h4>
+                    <div id="myConcernsList"></div>
+                </div>
+            </div>
+
+            <!-- MY BORROWINGS PANEL -->
+            <div id="my-borrowings-panel" class="content-panel">
+                <div class="panel-header"
+                    style="margin-bottom: 20px; border-bottom: 1px solid #f3f4f6; padding-bottom: 16px;">
+                    <h3 style="font-size: 16px; font-weight: 700; color: #064e3b;">📦 My Borrowings</h3>
+                </div>
+                <div id="myBorrowingsList"></div>
+            </div>
+
+            <!-- COURT BOOKINGS PANEL -->
+            <div id="court-bookings-panel" class="content-panel">
+                <div class="panel-header"
+                    style="margin-bottom: 20px; border-bottom: 1px solid #f3f4f6; padding-bottom: 16px;">
+                    <h3 style="font-size: 16px; font-weight: 700; color: #064e3b;">🏀 Court Reservations</h3>
+                </div>
+
+                <div class="venue-toggle">
+                    <button class="venue-btn active" id="vb-basketball" onclick="switchVenue('basketball')">🏀
+                        Basketball Court</button>
+                    <button class="venue-btn" id="vb-multipurpose" onclick="switchVenue('multipurpose')">🏢
+                        Multi-Purpose Hall</button>
+                </div>
+                <input type="hidden" id="currentVenue" value="basketball">
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 id="calMonthDisplay" style="font-size: 20px; font-weight: 800;">Month Year</h2>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn" onclick="changeCalMonth(-1)">←</button>
+                        <button class="btn" onclick="changeCalMonth(1)">→</button>
+                    </div>
+                </div>
+
+                <div class="calendar-wrapper">
+                    <div class="calendar-grid">
+                        <div class="cal-header">Sun</div>
+                        <div class="cal-header">Mon</div>
+                        <div class="cal-header">Tue</div>
+                        <div class="cal-header">Wed</div>
+                        <div class="cal-header">Thu</div>
+                        <div class="cal-header">Fri</div>
+                        <div class="cal-header">Sat</div>
+                    </div>
+                    <div class="calendar-grid" id="mainCalGrid"></div>
+                </div>
+
+                <div
+                    style="display: flex; gap: 16px; font-size: 12px; font-weight: 600; color: var(--muted); justify-content: center; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <div style="width: 12px; height: 12px; background: var(--primary-100); border-radius: 4px;">
+                        </div> Available
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <div style="width: 12px; height: 12px; background: var(--danger-bg); border-radius: 4px;"></div>
+                        Booked
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <div style="width: 12px; height: 12px; background: #f3e8ff; border-radius: 4px;"></div> Event
+                    </div>
+                </div>
+
+                <!-- NEW: My Court Reservations section added here -->
+                <div style="margin-top: 30px; border-top: 1px solid #f3f4f6; padding-top: 24px;">
+                    <h4 style="font-size: 15px; font-weight: 700; color: #064e3b; margin-bottom: 14px;">My Court
+                        Bookings</h4>
+                    <div id="myCourtBookingsList"></div>
+                </div>
+
+
+
+                <div style="margin-top: 30px; border-top: 1px solid #f3f4f6; padding-top: 24px;">
+                    <h4 style="font-size: 15px; font-weight: 700; color: #064e3b; margin-bottom: 14px;">🎉 Upcoming
+                        Events</h4>
+                    <div id="upcomingEventsList" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+
+    <!-- Mobile-Only Contextual Floating Action Button -->
+    <button id="userFab" class="mobile-fab" style="display: none;" onclick="handleUserFab()">+</button>
+
+    <!-- ADVANCED EQUIPMENT BORROW MODAL -->
+    <div id="borrowModal" class="modal-overlay hidden" style="z-index: 200; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
+        <div class="modal-content" style="max-width: 1000px; width: 90%; padding: 0; overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;">
+            <button onclick="closeBorrowModal()" style="position: absolute; top: 16px; right: 16px; z-index: 20; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(0,0,0,0.05); border: none; cursor: pointer; color: #374151;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <div style="padding: 24px; border-bottom: 1px solid #f3f4f6; background: #ecfdf5;">
+                <h3 style="font-size: 24px; font-weight: 800; color: #1f2937;" id="borrowModalTitle">Borrow Item</h3>
+                <p style="font-size: 14px; color: #6b7280; margin-top: 4px;">Select your borrowing dates and provide details below.</p>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; flex: 1; overflow-y: auto;">
+                <!-- Left Column: Calendar -->
+                <div style="width: 50%; padding: 24px; border-right: 1px solid #f3f4f6; background: #f9fafb; min-width: 300px; flex-grow: 1;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h4 id="borrowMonthTitle" style="font-size: 18px; font-weight: 700; color: #1f2937;">Month Year</h4>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" onclick="changeBorrowMonth(-1)" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; color: #4b5563;">&larr;</button>
+                            <button type="button" onclick="changeBorrowMonth(1)" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; color: #4b5563;">&rarr;</button>
+                        </div>
+                    </div>
+                    <div class="calendar-wrapper">
+                        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 8px;">
+                            <div style="text-align: center; font-weight: 700; color: #9ca3af; font-size: 12px; padding: 4px 0;">Sun</div><div style="text-align: center; font-weight: 700; color: #9ca3af; font-size: 12px; padding: 4px 0;">Mon</div>
+                            <div style="text-align: center; font-weight: 700; color: #9ca3af; font-size: 12px; padding: 4px 0;">Tue</div><div style="text-align: center; font-weight: 700; color: #9ca3af; font-size: 12px; padding: 4px 0;">Wed</div>
+                            <div style="text-align: center; font-weight: 700; color: #9ca3af; font-size: 12px; padding: 4px 0;">Thu</div><div style="text-align: center; font-weight: 700; color: #9ca3af; font-size: 12px; padding: 4px 0;">Fri</div>
+                            <div style="text-align: center; font-weight: 700; color: #9ca3af; font-size: 12px; padding: 4px 0;">Sat</div>
+                        </div>
+                        <div id="borrowCalendarGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; min-width: 500px;"></div>
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-top: 24px; padding: 12px; background: white; border-radius: 12px; border: 1px solid #f3f4f6; font-size: 12px; font-weight: 500; color: #4b5563;">
+                        <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 12px; height: 12px; border-radius: 4px; background: #d1fae5; border: 1px solid #6ee7b7;"></div> Available</div>
+                        <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 12px; height: 12px; border-radius: 4px; background: #fee2e2; border: 1px solid #fca5a5;"></div> Unavailable</div>
+                        <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 12px; height: 12px; border-radius: 4px; background: #10b981; border: 1px solid #059669;"></div> Selected</div>
+                    </div>
+                </div>
+                <!-- Right Column: Professional Form -->
+                <div style="width: 50%; padding: 24px; display: flex; flex-direction: column; min-width: 300px; flex-grow: 1;">
+                    <!-- Date Display -->
+                    <div style="background: linear-gradient(to bottom right, #ecfdf5, #f0fdfa); border: 1px solid #a7f3d0; border-radius: 16px; padding: 20px; margin-bottom: 24px; position: relative; overflow: hidden;">
+                        <h5 style="font-size: 14px; font-weight: 700; color: #065f46; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                            <span style="width: 32px; height: 32px; background: #10b981; color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px;">📅</span> Selected Borrowing Period
+                        </h5>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                            <div style="flex: 1; text-align: center;">
+                                <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #059669; font-weight: 700; margin-bottom: 4px;">Borrow Date</div>
+                                <div style="background: white; border-radius: 12px; padding: 12px 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #d1fae5;">
+                                    <div style="font-size: 24px; font-weight: 800; color: #059669;" id="dispStartDateDay">--</div>
+                                    <div style="font-size: 12px; color: #6b7280;" id="dispStartDateMonth">Select date</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; align-items: center;">
+                                <div style="width: 40px; height: 40px; background: #d1fae5; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #059669; font-size: 20px;">&rarr;</div>
+                                <div style="font-size: 12px; font-weight: 700; color: #059669; margin-top: 4px;" id="borrowDuration">0 days</div>
+                            </div>
+                            <div style="flex: 1; text-align: center;">
+                                <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #059669; font-weight: 700; margin-bottom: 4px;">Return Date</div>
+                                <div style="background: white; border-radius: 12px; padding: 12px 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #d1fae5;">
+                                    <div style="font-size: 24px; font-weight: 800; color: #059669;" id="dispReturnDateDay">--</div>
+                                    <div style="font-size: 12px; color: #6b7280;" id="dispReturnDateMonth">Select date</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="dateRangeDisplay" style="margin-top: 16px; text-align: center; font-size: 14px; font-weight: 500; color: #047857; background: rgba(255,255,255,0.6); padding: 8px; border-radius: 8px;">Please select your borrowing dates from the calendar</div>
+                        <div style="margin-top: 12px; font-size: 11px; line-height: 1.5; color: #047857; background: rgba(209,250,229,0.5); padding: 10px; border-radius: 8px; border: 1px solid rgba(167,243,208,0.5);">
+                            <strong>Important:</strong> Return deadline is <strong>2:00 PM</strong> on your Return Date.
+                        </div>
+                    </div>
+                    <form id="borrowForm" style="flex: 1; display: flex; flex-direction: column; gap: 16px;">
+                        <input type="hidden" id="borrowEquipmentId"><input type="hidden" id="borrowEquipmentName">
+                        
+                        <!-- Professional User Info -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div>
+                                <label style="display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #374151; text-transform: uppercase; letter-spacing: 0.05em;">Full Name</label>
+                                <input type="text" id="borrowerFullName" required style="width: 100%; padding: 12px 16px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; font-size: 14px; color: #1f2937; box-sizing: border-box; outline: none;" placeholder="Your full name">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #374151; text-transform: uppercase; letter-spacing: 0.05em;">Contact Number</label>
+                                <input type="text" id="borrowerContact" required style="width: 100%; padding: 12px 16px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; font-size: 14px; color: #1f2937; box-sizing: border-box; outline: none;" placeholder="09XX XXX XXXX">
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #374151; text-transform: uppercase; letter-spacing: 0.05em;">Address where item will be used</label>
+                            <input type="text" id="borrowerAddress" required style="width: 100%; padding: 12px 16px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; font-size: 14px; color: #1f2937; box-sizing: border-box; outline: none;" placeholder="e.g. Purok 3, Brgy. Sta. Lucia">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div style="display: none;"> <!-- Hidden fields needed for date tracking visually, handled by JS -->
+                                <div id="borrowDateDisplay"></div>
+                                <div id="returnDateDisplay"></div>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #374151; text-transform: uppercase; letter-spacing: 0.05em;">Borrow Time</label>
+                                <input type="time" id="borrowTime" required style="width: 100%; padding: 12px 16px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; font-size: 14px; color: #1f2937; box-sizing: border-box; outline: none;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #374151; text-transform: uppercase; letter-spacing: 0.05em;">Return Time</label>
+                                <input type="time" id="returnTime" required style="width: 100%; padding: 12px 16px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; font-size: 14px; color: #1f2937; box-sizing: border-box; outline: none;">
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #374151; text-transform: uppercase; letter-spacing: 0.05em;">Quantity Needed</label>
+                            <input type="number" id="borrowQty" min="1" required style="width: 100%; padding: 12px 16px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; font-size: 14px; color: #1f2937; box-sizing: border-box; outline: none;">
+                            <p id="borrowMaxHelp" style="font-size: 12px; color: #d97706; margin-top: 6px; font-weight: 500;"></p>
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column;">
+                            <label style="display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #374151; text-transform: uppercase; letter-spacing: 0.05em;">Purpose</label>
+                            <textarea id="borrowPurpose" required style="width: 100%; flex: 1; min-height: 80px; padding: 12px 16px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; font-size: 14px; color: #1f2937; resize: none; box-sizing: border-box; outline: none;" placeholder="Describe why you need this equipment..."></textarea>
+                        </div>
+                        <button type="submit" id="submitBorrowBtn" disabled style="width: 100%; margin-top: auto; padding: 14px; background: linear-gradient(to right, #10b981, #059669); color: white; font-weight: 700; font-size: 16px; border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);">
+                            ✅ Submit Borrow Request
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Premium Court Reservation Modal -->
+    <div class="modal-overlay" id="bookingModal">
+        <div class="modal-content" style="padding: 0; border-radius: 20px; overflow: hidden;">
+
+            <!-- Modal Top Green Header -->
+            <div
+                style="background: linear-gradient(135deg, #065f46, #059669); padding: 28px 28px 22px; position: relative;">
+                <button onclick="closeBookingModal()"
+                    style="position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,0.15); border: none; color: white; width: 30px; height: 30px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1;">&times;</button>
+                <div
+                    style="width: 48px; height: 48px; background: rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M8 2v4" />
+                        <path d="M16 2v4" />
+                        <rect width="18" height="18" x="3" y="4" rx="2" />
+                        <path d="M3 10h18" />
+                        <path d="M8 14h.01" />
+                        <path d="M12 14h.01" />
+                        <path d="M16 14h.01" />
+                        <path d="M8 18h.01" />
+                        <path d="M12 18h.01" />
+                        <path d="M16 18h.01" />
+                    </svg>
+                </div>
+                <h3 id="bookingDateTitle" style="font-size: 22px; font-weight: 800; color: white; margin: 0 0 4px;">Book
+                    Court</h3>
+                <p style="font-size: 13px; color: rgba(255,255,255,0.85); margin: 0;">Secure your preferred schedule
+                    instantly.</p>
+            </div>
+
+            <!-- Modal Body Form -->
+            <div style="padding: 28px;">
+                <div id="bookingMsg"></div>
+                <form id="courtBookForm">
+                    <input type="hidden" id="cbDate">
+
+                    <!-- Reserved By -->
+                    <div style="margin-bottom: 18px;">
+                        <label
+                            style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 7px; letter-spacing: 0.02em;">Reserved
+                            By</label>
+                        <input type="text" id="cbName" required placeholder="Full Name"
+                            style="display: block; width: 100%; padding: 11px 14px; border: 1.5px solid #d1fae5; border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif; color: #111; background: #f0fdf4; box-sizing: border-box; outline: none; transition: border 0.2s;"
+                            onfocus="this.style.borderColor='#059669'" onblur="this.style.borderColor='#d1fae5'">
+                    </div>
+
+                    <!-- Start & End Time Side by Side -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px;">
+                        <div>
+                            <label
+                                style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 7px;">Start
+                                Time</label>
+                            <select id="cbStartTime" required
+                                style="display: block; width: 100%; padding: 11px 14px; border: 1.5px solid #d1fae5; border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif; color: #111; background: #f0fdf4; box-sizing: border-box; outline: none; cursor: pointer;">
+                                <option value=""></option>
+                                <option value="6:00 AM">6:00 AM</option>
+                                <option value="8:00 AM">8:00 AM</option>
+                                <option value="10:00 AM">10:00 AM</option>
+                                <option value="12:00 PM">12:00 PM</option>
+                                <option value="2:00 PM">2:00 PM</option>
+                                <option value="4:00 PM">4:00 PM</option>
+                                <option value="6:00 PM">6:00 PM</option>
+                                <option value="8:00 PM">8:00 PM</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 7px;">End
+                                Time</label>
+                            <select id="cbEndTime" required
+                                style="display: block; width: 100%; padding: 11px 14px; border: 1.5px solid #d1fae5; border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif; color: #111; background: #f0fdf4; box-sizing: border-box; outline: none; cursor: pointer;">
+                                <option value=""></option>
+                                <option value="8:00 AM">8:00 AM</option>
+                                <option value="10:00 AM">10:00 AM</option>
+                                <option value="12:00 PM">12:00 PM</option>
+                                <option value="2:00 PM">2:00 PM</option>
+                                <option value="4:00 PM">4:00 PM</option>
+                                <option value="6:00 PM">6:00 PM</option>
+                                <option value="8:00 PM">8:00 PM</option>
+                                <option value="10:00 PM">10:00 PM</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Purpose -->
+                    <div style="margin-bottom: 22px;">
+                        <label
+                            style="display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 7px;">Purpose
+                            of Booking</label>
+                        <input type="text" id="cbPurpose" required placeholder="e.g. Liga Practice, Birthday Party"
+                            style="display: block; width: 100%; padding: 11px 14px; border: 1.5px solid #d1fae5; border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif; color: #111; background: #f0fdf4; box-sizing: border-box; outline: none; transition: border 0.2s;"
+                            onfocus="this.style.borderColor='#059669'" onblur="this.style.borderColor='#d1fae5'">
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" id="cbSubmitBtn"
+                        style="width: 100%; padding: 14px; background: linear-gradient(135deg, #059669, #065f46); color: white; font-weight: 700; font-size: 15px; font-family: 'Plus Jakarta Sans', sans-serif; border: none; border-radius: 12px; cursor: pointer; letter-spacing: 0.02em; transition: opacity 0.2s; box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);"
+                        onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                        Confirm Reservation
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals and Toast -->
+    <div id="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/crypto-utils.js"></script>
+        <script src="js/app.js"></script>
+    <script src="js/darkmode.js"></script>
+    <script>
+        document.querySelectorAll('.nav-item').forEach(item => {
+            if (item.hasAttribute('onclick')) return;
+            item.addEventListener('click', function () {
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+                const panelId = this.getAttribute('data-panel');
+                showPanel(panelId);
+            });
+        });
+
+        let showPanel = function (name) {
+            document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+            let panelId = name.endsWith('-panel') ? name : name + '-panel';
+            const panel = document.getElementById(panelId) || document.getElementById(name);
+            if (panel) panel.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            document.querySelectorAll('.nav-item').forEach(nav => {
+                if (nav.getAttribute('data-panel') === panelId || nav.getAttribute('data-panel') === name) {
+                    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                    nav.classList.add('active');
+                }
+            });
+        };
+
+        function showToast(message, type = 'success') {
+            const t = document.getElementById('toast');
+            t.className = type; t.textContent = message;
+            t.style.transform = 'translateY(0)';
+            setTimeout(() => { t.style.transform = 'translateY(80px)'; }, 3000);
+        }
+
+        const user = getCurrentUser();
+        if (!user) window.location.href = 'login.html';
+
+        document.getElementById('userName').textContent = user.fullName;
+
+        // Check if welcomeName element exists before trying to set its text.
+        const welcomeNameEl = document.getElementById('welcomeName');
+        if (welcomeNameEl) {
+            welcomeNameEl.textContent = user.fullName.split(' ')[0];
+        }
+
+        document.getElementById('userAvatar').textContent = user.avatar || user.fullName.charAt(0);
+        if (user.role === 'admin') document.getElementById('userRole').textContent = 'Administrator';
+
+
+
+        // --- EQUIPMENT MODAL LOGIC (New Advanced Design) ---
+        let borrowStartDate = null;
+        let borrowReturnDate = null;
+        let borrowDateSelectingStart = true;
+        let borrowCalMonth = new Date().getMonth();
+        let borrowCalYear = new Date().getFullYear();
+
+        window.openEquipModal = async function (equipId) {
+            const list = await getEquipment();
+            const item = list.find(e => e.id === equipId);
+            if (!item || item.available <= 0) {
+                showToast('Item currently unavailable', 'error');
+                return;
+            }
+
+            document.getElementById('borrowModalTitle').innerHTML = 'Borrow ' + item.name;
+            document.getElementById('borrowEquipmentId').value = equipId;
+            document.getElementById('borrowEquipmentName').value = item.name;
+            document.getElementById('borrowQty').max = item.available;
+            document.getElementById('borrowQty').value = 1;
+            
+            const maxHelp = document.getElementById('borrowMaxHelp');
+            if(maxHelp) maxHelp.innerHTML = '📦 Max: ' + item.available + ' units available';
+            
+            document.getElementById('borrowPurpose').value = '';
+            document.getElementById('borrowerFullName').value = user.fullName || '';
+            document.getElementById('borrowerContact').value = '';
+
+            borrowStartDate = null; borrowReturnDate = null; borrowDateSelectingStart = true;
+            borrowCalMonth = new Date().getMonth();
+            borrowCalYear = new Date().getFullYear();
+            
+            updateBorrowDateDisplays(); renderBorrowCalendar(); updateBorrowSubmitButton();
+            document.getElementById('borrowModal').classList.remove('hidden');
+            document.getElementById('borrowModal').classList.add('active');
+        };
+
+        window.closeBorrowModal = function() {
+            document.getElementById('borrowModal').classList.remove('active');
+            document.getElementById('borrowModal').classList.add('hidden');
+            borrowStartDate = null; borrowReturnDate = null; borrowDateSelectingStart = true;
+        }
+
+        // Exposing global changeBorrowMonth for the calendar
+        window.changeBorrowMonth = function(delta) {
+            borrowCalMonth += delta;
+            if (borrowCalMonth > 11) { borrowCalMonth = 0; borrowCalYear++; }
+            else if (borrowCalMonth < 0) { borrowCalMonth = 11; borrowCalYear--; }
+            renderBorrowCalendar();
+        };
+
+        function updateBorrowSubmitButton() {
+            const btn = document.getElementById('submitBorrowBtn');
+            const qty = parseInt(document.getElementById('borrowQty').value);
+            const purpose = document.getElementById('borrowPurpose').value;
+            const name = document.getElementById('borrowerFullName').value;
+            const contact = document.getElementById('borrowerContact').value;
+            btn.disabled = !(borrowStartDate && borrowReturnDate && qty > 0 && purpose.trim() !== '' && name.trim() !== '' && contact.trim() !== '');
+        }
+
+        document.getElementById('borrowQty')?.addEventListener('input', updateBorrowSubmitButton);
+        document.getElementById('borrowPurpose')?.addEventListener('input', updateBorrowSubmitButton);
+        document.getElementById('borrowerFullName')?.addEventListener('input', updateBorrowSubmitButton);
+        document.getElementById('borrowerContact')?.addEventListener('input', updateBorrowSubmitButton);
+
+        function updateBorrowDateDisplays() {
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const fullMonths = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            const bDisp = document.getElementById('borrowDateDisplay');
+            const rDisp = document.getElementById('returnDateDisplay');
+            const dpStartDay = document.getElementById('dispStartDateDay');
+            const dpStartMonth = document.getElementById('dispStartDateMonth');
+            const dpReturnDay = document.getElementById('dispReturnDateDay');
+            const dpReturnMonth = document.getElementById('dispReturnDateMonth');
+            const durText = document.getElementById('borrowDuration');
+            const rangeDisplay = document.getElementById('dateRangeDisplay');
+
+            if (borrowStartDate) {
+                const d = new Date(borrowStartDate);
+                if(bDisp) {
+                    bDisp.innerHTML = '<div class="text-lg font-bold text-emerald-700">' + fullMonths[d.getMonth()] + ' ' + d.getDate() + '</div><div class="text-xs text-emerald-500">' + d.getFullYear() + '</div>';
+                    bDisp.classList.add('border-emerald-400', 'bg-emerald-100');
+                }
+                if (dpStartDay) { dpStartDay.textContent = d.getDate(); dpStartMonth.textContent = months[d.getMonth()] + ' ' + d.getFullYear(); }
+                if(rangeDisplay) rangeDisplay.textContent = 'Now select a return date from the calendar';
+            } else {
+                if(bDisp) {
+                    bDisp.innerHTML = '<div class="text-lg font-bold text-emerald-700">Select date</div><div class="text-xs text-emerald-500">from calendar</div>';
+                    bDisp.classList.remove('border-emerald-400', 'bg-emerald-100');
+                }
+                if (dpStartDay) { dpStartDay.textContent = '--'; dpStartMonth.textContent = 'Select date'; }
+                if(rangeDisplay) rangeDisplay.textContent = 'Please select your borrowing dates from the calendar';
+            }
+
+            if (borrowReturnDate) {
+                const d = new Date(borrowReturnDate);
+                if(rDisp) {
+                    rDisp.innerHTML = '<div class="text-lg font-bold text-teal-700">' + fullMonths[d.getMonth()] + ' ' + d.getDate() + '</div><div class="text-xs text-teal-500">' + d.getFullYear() + '</div>';
+                    rDisp.classList.add('border-teal-400', 'bg-teal-100');
+                }
+                if (dpReturnDay) { dpReturnDay.textContent = d.getDate(); dpReturnMonth.textContent = months[d.getMonth()] + ' ' + d.getFullYear(); }
+                const start = new Date(borrowStartDate);
+                const diffDays = Math.ceil(Math.abs(d - start) / (1000*60*60*24)) + 1;
+                if(durText) durText.textContent = diffDays + (diffDays > 1 ? ' days' : ' day');
+                if(rangeDisplay) rangeDisplay.innerHTML = '<span class="text-emerald-600">📅 ' + fullMonths[start.getMonth()] + ' ' + start.getDate() + ' → ' + fullMonths[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + '</span> <span class="ml-2 px-2 py-1 bg-emerald-500 text-white rounded-lg text-xs font-bold">' + diffDays + ' day' + (diffDays > 1 ? 's' : '') + '</span>';
+            } else {
+                if(rDisp) {
+                    rDisp.innerHTML = '<div class="text-lg font-bold text-teal-700">Select date</div><div class="text-xs text-teal-500">from calendar</div>';
+                    rDisp.classList.remove('border-teal-400', 'bg-teal-100');
+                }
+                if (dpReturnDay) { dpReturnDay.textContent = '--'; dpReturnMonth.textContent = 'Select date'; }
+                if(durText) durText.textContent = '0 days';
+            }
+        }
+
+        function renderBorrowCalendar() {
+            const grid = document.getElementById('borrowCalendarGrid');
+            if(!grid) return;
+            const monthTitle = document.getElementById('borrowMonthTitle');
+            const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            if(monthTitle) monthTitle.textContent = months[borrowCalMonth] + ' ' + borrowCalYear;
+            
+            grid.innerHTML = '';
+            const firstDay = new Date(borrowCalYear, borrowCalMonth, 1).getDay();
+            const daysInMonth = new Date(borrowCalYear, borrowCalMonth + 1, 0).getDate();
+            const today = new Date(); today.setHours(0,0,0,0);
+            
+            for (let i = 0; i < firstDay; i++) { grid.appendChild(document.createElement('div')); }
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = borrowCalYear + '-' + String(borrowCalMonth + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+                const dateObj = new Date(borrowCalYear, borrowCalMonth, day);
+                const dayDiv = document.createElement('div');
+                
+                dayDiv.className = 'p-2.5 rounded-lg text-center cursor-pointer font-bold text-sm transition transform hover:scale-105 ';
+                
+                if (dateObj < today) { 
+                    dayDiv.className += 'bg-gray-100 text-gray-400 cursor-not-allowed'; 
+                } else { 
+                    dayDiv.className += 'bg-emerald-50 text-emerald-700 hover:bg-emerald-200 border border-emerald-200'; 
+                    dayDiv.onclick = () => window.selectBorrowDate(dateStr); 
+                }
+                
+                if (dateObj.getTime() === today.getTime() && !(dateObj < today)) { 
+                    dayDiv.className += ' ring-2 ring-emerald-500 ring-offset-2'; 
+                }
+                
+                if (borrowStartDate === dateStr) { 
+                    dayDiv.className = 'p-2.5 rounded-lg text-center cursor-pointer font-bold text-sm bg-emerald-500 text-white shadow-md ring-2 ring-emerald-300'; 
+                }
+                if (borrowReturnDate === dateStr) { 
+                    dayDiv.className = 'p-2.5 rounded-lg text-center cursor-pointer font-bold text-sm bg-teal-500 text-white shadow-md ring-2 ring-teal-300'; 
+                }
+                if (borrowStartDate && borrowReturnDate) {
+                    const start = new Date(borrowStartDate); const end = new Date(borrowReturnDate);
+                    if (dateObj > start && dateObj < end) { dayDiv.className += ' bg-emerald-100'; }
+                }
+                
+                dayDiv.textContent = day;
+                grid.appendChild(dayDiv);
+            }
+        }
+
+        window.selectBorrowDate = function(dateStr) {
+            const today = new Date(); today.setHours(0,0,0,0);
+            if (new Date(dateStr) < today) {
+                showToast('Cannot select past dates', 'error');
+                return;
+            }
+            if (borrowDateSelectingStart) {
+                borrowStartDate = dateStr; borrowReturnDate = null; borrowDateSelectingStart = false;
+                showToast('Now select the return date', 'success');
+            } else {
+                if (new Date(dateStr) < new Date(borrowStartDate)) {
+                    showToast('Return date must be after borrow date', 'error');
+                    return;
+                }
+                borrowReturnDate = dateStr; borrowDateSelectingStart = true;
+            }
+            updateBorrowDateDisplays(); renderBorrowCalendar(); updateBorrowSubmitButton();
+        };
+
+        document.getElementById('borrowForm')?.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const equipId = parseInt(document.getElementById('borrowEquipmentId').value);
+            const qty = parseInt(document.getElementById('borrowQty').value);
+            const purposeStr = document.getElementById('borrowPurpose').value;
+            const fullName = document.getElementById('borrowerFullName').value;
+            const contact = document.getElementById('borrowerContact').value;
+            const address = document.getElementById('borrowerAddress').value;
+            
+            const borrowTime = document.getElementById('borrowTime').value;
+            const returnTime = document.getElementById('returnTime').value;
+            
+            const borrowDate = borrowStartDate;
+            const returnDate = borrowReturnDate;
+            
+            if (!equipId) return showToast('Please select an equipment item', 'error');
+            if (!borrowDate || !returnDate) return showToast('Please select both dates', 'error');
+            if (!borrowTime || !returnTime) return showToast('Please select the pickup and return times', 'error');
+            
+            const btn = document.getElementById('submitBorrowBtn');
+            btn.disabled = true; btn.innerHTML = 'Submitting...';
+            
+            // Format time string for 12-hour AM/PM purely for readability in logs
+            const formatTime = (time24h) => {
+                let [h, m] = time24h.split(':');
+                h = parseInt(h);
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                h = h % 12 || 12;
+                return `${h}:${m} ${ampm}`;
+            };
+            
+            const fullPurpose = `[Time: ${formatTime(borrowTime)} to ${formatTime(returnTime)}] | Purpose: ${purposeStr} | Borrower: ${fullName} | Contact: ${contact} | Address: ${address}`;
+            const result = await borrowEquipment(equipId, qty, borrowDate, returnDate, fullPurpose);
+            
+            if (result.success) { 
+                showToast('✅ ' + result.message, 'success'); 
+                window.closeBorrowModal(); 
+                await loadEquipment(); 
+                await loadMyBorrowings(); 
+            } else { 
+                showToast(result.message, 'error'); 
+            }
+            
+            btn.disabled = false; btn.innerHTML = '✅ Submit Borrow Request';
+        });
+
+        // Override original requestEquipment
+        window.requestEquipment = window.openEquipModal;
+
+        // --- COURT BOOKING LOGIC ---
+        let calMonth = new Date().getMonth();
+        let calYear = new Date().getFullYear();
+
+        function switchVenue(v) {
+            document.getElementById('currentVenue').value = v;
+            document.getElementById('vb-basketball').classList.remove('active');
+            document.getElementById('vb-multipurpose').classList.remove('active');
+            document.getElementById('vb-' + v).classList.add('active');
+            renderCal();
+        }
+
+        async function changeCalMonth(dir) {
+            calMonth += dir;
+            if (calMonth > 11) { calMonth = 0; calYear++; }
+            if (calMonth < 0) { calMonth = 11; calYear--; }
+            await renderCal();
+        }
+
+        async function renderCal() {
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            document.getElementById('calMonthDisplay').textContent = months[calMonth] + ' ' + calYear;
+
+            const grid = document.getElementById('mainCalGrid');
+            grid.innerHTML = '';
+
+            const venue = document.getElementById('currentVenue').value;
+            const allBookings = await getCourtBookings();
+            const allEventsRaw = await getEvents();
+
+            const venueBookings = allBookings.filter(b => b.venue === venue && b.status !== 'cancelled').map(b => b.date);
+            const events = allEventsRaw.filter(e => e.status === 'approved');
+            const eventMap = {};
+            events.forEach(e => eventMap[e.date] = e);
+
+            const firstDay = new Date(calYear, calMonth, 1).getDay();
+            const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            for (let i = 0; i < firstDay; i++) {
+                grid.innerHTML += '<div></div>';
+            }
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const dateObj = new Date(calYear, calMonth, d);
+
+                let cls = 'cal-day available';
+                let txt = '';
+
+                if (dateObj < today) {
+                    cls = 'cal-day past';
+                } else if (eventMap[dateStr]) {
+                    cls = 'cal-day event';
+                    txt = '<div class="cal-badge">🎉 Event</div>';
+                } else if (venueBookings.includes(dateStr)) {
+                    cls = 'cal-day booked';
+                    txt = '<div class="cal-badge">Booked</div>';
+                }
+
+                if (dateObj.getTime() === today.getTime() && !cls.includes('past')) {
+                    cls += ' today';
+                }
+
+                grid.innerHTML += `<div class="${cls}" onclick="openBookingForm('${dateStr}')">${d}${txt}</div>`;
+            }
+        }
+
+        window.openBookingForm = async function (dateStr) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (new Date(dateStr) < today) return;
+
+            const allEvents = await getEvents();
+            const evt = allEvents.find(e => e.status === 'approved' && e.date === dateStr);
+
+            document.getElementById('bookingModal').classList.add('active');
+
+            // Format date string beautifully (e.g. March 12, 2026)
+            const dateFmt = new Date(dateStr).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+            document.getElementById('bookingDateTitle').textContent = dateFmt;
+            document.getElementById('cbDate').value = dateStr;
+
+            // Auto-fill the Name field
+            if (window.user && window.user.fullName) {
+                document.getElementById('cbName').value = window.user.fullName;
+            }
+
+            const btn = document.getElementById('cbSubmitBtn');
+            const msg = document.getElementById('bookingMsg');
+
+            if (evt) {
+                msg.innerHTML = `<div style="padding: 12px; background: #fffbeb; color: #b45309; border-radius: 8px; margin-bottom: 16px; font-size: 13px; border: 1.5px solid #fde68a;">
+                    <strong>⚠️ Heads Up:</strong> An official event (${evt.title}) is scheduled for this day. You may still submit your request, but it is unlikely to be approved.
+                </div>`;
+            } else {
+                msg.innerHTML = '';
+            }
+
+            // Allow submission regardless of overlapping events
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        }
+
+        window.closeBookingModal = function () {
+            document.getElementById('bookingModal').classList.remove('active');
+            document.getElementById('courtBookForm').reset();
+            document.getElementById('bookingMsg').innerHTML = '';
+        };
+
+        document.getElementById('courtBookForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const date = document.getElementById('cbDate').value;
+            const startTime = document.getElementById('cbStartTime').value;
+            const endTime = document.getElementById('cbEndTime').value;
+            const purpose = document.getElementById('cbPurpose').value;
+            const venue = document.getElementById('currentVenue').value;
+            const bookedForName = document.getElementById('cbName').value || user.fullName;
+
+            if (!startTime || !endTime) {
+                showToast('Please select start and end time', 'error');
+                return;
+            }
+
+            const result = await bookCourt({
+                user_id: user.id,
+                username: bookedForName,
+                date,
+                time: startTime,
+                end_time: endTime,
+                venue,
+                purpose,
+                status: 'pending'
+            });
+
+            if (result.success) {
+                showToast('✅ ' + result.message, 'success');
+                closeBookingModal();
+                await renderCal();
+                await loadMyCourtBookings();
+            } else {
+                showToast(result.message, 'error');
+            }
+        });
+
+
+        async function loadMyCourtBookings() {
+            const allBookings = await getCourtBookings();
+            const userBookings = allBookings.filter(b => String(b.userId) === String(user.id) || String(b.user_id) === String(user.id));
+            const c = document.getElementById('myCourtBookingsList');
+
+            if (userBookings.length === 0) {
+                c.innerHTML = '<div class="empty-state"><span>🏟️</span><p>No court reservations yet.</p></div>';
+                return;
+            }
+
+            userBookings.sort((a, b) => new Date(b.date) - new Date(a.date));
+            c.innerHTML = userBookings.map(b => {
+                const venueName = b.venueName || 'Basketball Court';
+                const timeDisplay = b.timeRange || b.time || '';
+                const adminNote = b.admin_comment
+                    ? `<div class="li-response" style="margin-top:8px;"><strong>Admin:</strong> ${b.admin_comment}</div>`
+                    : '';
+
+                let step = 1;
+                if (b.status === 'approved' || b.status === 'booked') step = 2;
+                if (b.status === 'rejected' || b.status === 'cancelled') step = -1;
+
+                const trackerHtml = `
+                <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--muted);background:var(--bg);padding:6px 12px;border-radius:20px;">
+                    <span style="color:${step >= 1 ? '#10b981' : 'inherit'}">${step >= 1 ? '✓' : '○'} Submitted</span>
+                    <span style="color:#cbd5e1">➔</span>
+                    ${step === -1 ? `<span style="color:#ef4444">❌ ${b.status}</span>` : `<span style="color:${step >= 2 ? '#10b981' : 'inherit'}">${step >= 2 ? '✅ Approved' : '⏳ Reviewing'}</span>`}
+                </div>`;
+
+                return `
+                    <div class="list-item">
+                        <div class="li-header" style="flex-direction:column;align-items:flex-start;gap:8px;">
+                            <div style="width:100%;display:flex;justify-content:space-between;align-items:flex-start;">
+                                <div>
+                                    <div class="li-title">🏀 ${venueName}</div>
+                                    <div class="li-meta">📅 ${formatDate(b.date)} • ⏰ ${timeDisplay}</div>
+                                </div>
+                                ${trackerHtml}
+                            </div>
+                        </div>
+                        <div class="li-body"><strong>Purpose:</strong> ${b.purpose || '—'}</div>
+                        ${adminNote}
+                        ${b.status !== 'cancelled' && b.status !== 'rejected' ? `
+                        <div style="margin-top: 10px;">
+                            <button class="btn" onclick="cancelCb(${b.id})" style="color: var(--danger); border-color: var(--danger-bg); background: var(--danger-bg); padding: 4px 10px; font-size: 11px;">Cancel Reservation</button>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.cancelCb = async function (id) {
+            if (!await showConfirmModal('Are you sure you want to cancel this booking?', 'Cancel Reservation', 'Yes, Cancel', 'No', 'danger')) return;
+            const res = await cancelCourtBooking(id);
+            if (res.success) {
+                showToast('✅ ' + res.message, 'success');
+                await loadMyCourtBookings();
+                await renderCal();
+            } else {
+                showToast(res.message, 'error');
+            }
+        }
+
+        async function loadUpcomingEvents() {
+            const allEvents = await getEvents();
+            const evts = allEvents.filter(e => e.status === 'approved' && new Date(e.date) >= new Date(new Date().setHours(0, 0, 0, 0)));
+            evts.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            const c = document.getElementById('upcomingEventsList');
+            if (evts.length === 0) {
+                c.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><span>🎉</span><p>No upcoming events.</p></div>';
+                return;
+            }
+            c.innerHTML = evts.map(e => `
+                <div class="event-card">
+                    <h4 style="font-size: 16px; font-weight: 800; margin-bottom: 4px;">${e.title}</h4>
+                    <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px;">📍 ${e.location}</div>
+                    <div style="font-size: 12px; background: rgba(0,0,0,0.2); padding: 6px 10px; border-radius: 6px;">
+                        <div>📅 ${formatDate(e.date)}</div>
+                        <div>⏰ ${e.time} ${e.end_time ? ' - ' + e.end_time : ''}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log("Dashboard initializing...");
+
+            // Tab Navigation Logic
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Update active tab button
+                    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    // Show correct panel
+                    const panelId = btn.getAttribute('data-panel');
+                    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+                    document.getElementById(panelId).classList.add('active');
+
+                    // Manage Contextual Mobile FAB
+                    const fab = document.getElementById('userFab');
+                    if (window.innerWidth <= 768 && fab) {
+                        if (panelId === 'concerns-panel') {
+                            fab.style.display = 'flex';
+                        } else {
+                            fab.style.display = 'none';
+                        }
+                    } else if (fab) {
+                        fab.style.display = 'none';
+                    }
+
+                    // Auto-sync data based on tab clicked to emulate real-time
+                    if (panelId === 'court-bookings-panel') {
+                        loadUpcomingEvents();
+                        loadMyCourtBookings();
+                        renderCal();
+                    } else if (panelId === 'concerns-panel') {
+                        loadMyConcerns();
+                    } else if (panelId === 'equipment-panel') {
+                        loadEquipment();
+                    } else if (panelId === 'my-borrowings-panel') {
+                        loadMyBorrowings();
+                    }
+                });
+            });
+
+            // Initialize FAB state on load
+            const activeNav = document.querySelector('.nav-item.active');
+            if (activeNav && window.innerWidth <= 768) {
+                const fab = document.getElementById('userFab');
+                if (fab && activeNav.getAttribute('data-panel') === 'concerns-panel') {
+                    fab.style.display = 'flex';
+                }
+            }
+
+            // Window resize listener to handle FAB visibility transitioning between mobile/desktop
+            window.addEventListener('resize', () => {
+                const fab = document.getElementById('userFab');
+                if (!fab) return;
+                const activeNav = document.querySelector('.nav-item.active');
+                if (window.innerWidth <= 768 && activeNav && activeNav.getAttribute('data-panel') === 'concerns-panel') {
+                    fab.style.display = 'flex';
+                } else {
+                    fab.style.display = 'none';
+                }
+            });
+
+            // Global functions for Divergent Mobile Patterns
+            window.handleUserFab = function() {
+                const activeNav = document.querySelector('.nav-item.active');
+                if (activeNav && activeNav.getAttribute('data-panel') === 'concerns-panel') {
+                    toggleConcernSheet();
+                }
+            };
+
+            window.toggleConcernSheet = function() {
+                const form = document.getElementById('concernForm');
+                const backdrop = document.getElementById('concernFormBackdrop');
+                if (form.classList.contains('show-sheet')) {
+                    form.classList.remove('show-sheet');
+                    backdrop.classList.remove('show-backdrop');
+                } else {
+                    form.classList.add('show-sheet');
+                    backdrop.classList.add('show-backdrop');
+                }
+            };
+
+            try { await renderCal(); } catch (e) { console.error("Calendar fail:", e); }
+            try { await loadUpcomingEvents(); } catch (e) { console.error("Events fail:", e); }
+            try { await loadMyCourtBookings(); } catch (e) { console.error("Bookings fail:", e); }
+
+            // Do not use Promise.all so if one fails, the others still succeed
+            try { await loadEquipment(); } catch (e) { console.error("Equip fail:", e); }
+            try { await loadMyConcerns(); } catch (e) { console.error("Concerns fail:", e); }
+            try { await loadMyBorrowings(); } catch (e) { console.error("Borrowings fail:", e); }
+
+            console.log("Dashboard initialization complete.");
+        });
+
+        async function loadEquipment() {
+            const equipment = await getEquipment();
+            const c = document.getElementById('equipmentList');
+            if (!equipment.length) { c.innerHTML = '<div class="empty-state"><span>📦</span><p>No equipment available.</p></div>'; return; }
+            c.innerHTML = equipment.map(item => {
+                const pct = Math.round((item.available / item.quantity) * 100);
+                const fc = pct > 50 ? 'pf-green' : pct > 25 ? 'pf-yellow' : 'pf-red';
+
+                let iconHtml = item.icon;
+                if (item.name === 'Tables') {
+                    iconHtml = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-500);"><path d="M4 6v14"/><path d="M20 6v14"/><path d="M2 6h20v4H2z"/></svg>';
+                } else if (item.name === 'Ladder') {
+                    iconHtml = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-500);"><path d="M6 3v18"/><path d="M18 3v18"/><path d="M6 7h12"/><path d="M6 12h12"/><path d="M6 17h12"/></svg>';
+                }
+
+                return `<div class="equip-card">
+                    <div class="equip-top">
+                        <div class="equip-left">
+                            <span class="equip-emoji">${iconHtml}</span>
+                            <div><div class="equip-name">${item.name}</div><div class="equip-desc">${item.description}</div></div>
+                        </div>
+                        <span class="equip-count">${item.available}/${item.quantity}</span>
+                    </div>
+                    <div class="progress"><div class="progress-fill ${fc}" style="width:${pct}%"></div></div>
+                    <button class="btn-borrow" onclick="window.openEquipModal(${item.id})">+ Request to Borrow</button>
+                </div>`;
+            }).join('');
+        }
+
+
+
+        async function loadMyConcerns() {
+            const concerns = await getMyConcerns();
+            const c = document.getElementById('myConcernsList');
+            if (!concerns.length) { c.innerHTML = '<div class="empty-state"><span>📋</span><p>No concerns submitted yet.</p></div>'; return; }
+            concerns.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            c.innerHTML = concerns.map(concern => {
+                let step = 1;
+                let s = concern.status || 'pending';
+                if (s === 'in-progress') step = 2;
+                if (s === 'resolved' || s === 'closed') step = 3;
+                if (s === 'rejected' || s === 'cancelled') step = -1;
+
+                const trackerHtml = `
+                <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--muted);background:var(--bg);padding:6px 12px;border-radius:20px;">
+                    <span style="color:${step >= 1 ? '#10b981' : 'inherit'}">${step >= 1 ? '✓' : '○'} Submitted</span>
+                    <span style="color:#cbd5e1">➔</span>
+                    ${step === -1 ? `<span style="color:#ef4444">❌ ${s}</span>` : `
+                    <span style="color:${step >= 2 ? '#3b82f6' : 'inherit'}">${step >= 2 ? '🔧 Fixing' : '⏳ Reviewing'}</span>
+                    <span style="color:#cbd5e1">➔</span>
+                    <span style="color:${step >= 3 ? '#10b981' : 'inherit'}">${step >= 3 ? '✅ Resolved' : '○ Resolved'}</span>
+                    `}
+                </div>`;
+
+                return `<div class="list-item">
+                    <div class="li-header" style="flex-direction:column;align-items:flex-start;gap:8px;">
+                        <div style="width:100%;display:flex;justify-content:space-between;align-items:flex-start;">
+                            <div><div class="li-title">${concern.title}</div><div class="li-meta">${concern.category} • ${formatDate(concern.createdAt)} • 📍 ${concern.address || 'N/A'}</div></div>
+                            ${trackerHtml}
+                        </div>
+                    </div>
+                    <div class="li-body">${concern.description}</div>
+                    ${concern.response ? `<div class="li-response"><strong>Admin Response:</strong> ${concern.response}</div>` : ''}
+                </div>`;
+            }).join('');
+        }
+
+        document.getElementById('concernForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const result = await submitConcern(
+                document.getElementById('concernCategory').value,
+                document.getElementById('concernTitle').value,
+                document.getElementById('concernDescription').value,
+                document.getElementById('concernAddress').value
+            );
+            if (result.success) { showToast('✅ ' + result.message, 'success'); this.reset(); await loadMyConcerns(); }
+            else showToast(result.message, 'error');
+        });
+
+        async function loadMyBorrowings() {
+            const borrowings = await getMyBorrowings();
+            const c = document.getElementById('myBorrowingsList');
+            if (!borrowings.length) { c.innerHTML = '<div class="empty-state"><span>📦</span><p>No borrowings yet. Request some equipment!</p></div>'; return; }
+            borrowings.sort((a, b) => new Date(b.borrowDate) - new Date(a.borrowDate));
+            c.innerHTML = borrowings.map(b => {
+                let step = 1;
+                let s = b.status || 'pending';
+                if (s === 'approved') step = 2;
+                if (s === 'returned') step = 3;
+                if (s === 'rejected' || s === 'cancelled') step = -1;
+
+                const trackerHtml = `
+                <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--muted);background:var(--bg);padding:6px 12px;border-radius:20px;">
+                    <span style="color:${step >= 1 ? '#10b981' : 'inherit'}">${step >= 1 ? '✓' : '○'} Req</span>
+                    <span style="color:#cbd5e1">➔</span>
+                    ${step === -1 ? `<span style="color:#ef4444">❌ ${s}</span>` : `
+                    <span style="color:${step >= 2 ? '#3b82f6' : 'inherit'}">${step >= 2 ? '👍 Appr.' : '⏳ Rev'}</span>
+                    <span style="color:#cbd5e1">➔</span>
+                    <span style="color:${step >= 3 ? '#10b981' : 'inherit'}">${step >= 3 ? '✅ Returned' : '○ Rtn'}</span>
+                    `}
+                </div>`;
+
+                return `<div class="list-item">
+                    <div class="li-header" style="flex-direction:column;align-items:flex-start;gap:8px;">
+                        <div style="width:100%;display:flex;justify-content:space-between;align-items:flex-start;">
+                            <div><div class="li-title">${b.equipment}</div><div class="li-meta">Qty: ${b.quantity} • ${formatDate(b.borrowDate)} → ${formatDate(b.returnDate)}</div></div>
+                            ${trackerHtml}
+                        </div>
+                    </div>
+                    <div class="li-body"><strong>Purpose:</strong> ${b.purpose}</div>
+                </div>`;
+            }).join('');
+        }
+    </script>
+</body>
+
+</html>

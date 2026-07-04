@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basketball Court Scheduling - Barangay Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script><script>tailwind.config = { darkMode: ['class', '[data-theme="dark"]'] }</script>
+    <style>
+        .calendar-day:hover {
+            transform: scale(1.05);
+        }
+
+        .calendar-day.booked {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        }
+
+        .calendar-day.selected {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        }
+
+        .calendar-day.today {
+            border: 3px solid #22c55e;
+        }
+
+        .booking-card:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Dark Mode Overrides for Tailwind classes */
+        [data-theme="dark"] body {
+            background: #022c22;
+            color: #f1f5f9;
+        }
+
+        [data-theme="dark"] .bg-white {
+            background-color: #064e3b;
+            color: #f1f5f9;
+            border: 1px solid #14532d;
+        }
+
+        [data-theme="dark"] .text-gray-800,
+        [data-theme="dark"] .text-gray-700,
+        [data-theme="dark"] .text-gray-600,
+        [data-theme="dark"] .text-gray-500 {
+            color: #a7f3d0;
+        }
+
+        [data-theme="dark"] input,
+        [data-theme="dark"] select,
+        [data-theme="dark"] textarea {
+            background-color: #0d2818;
+            color: #f1f5f9;
+            border-color: #14532d;
+        }
+
+        [data-theme="dark"] .calendar-day.bg-green-100 {
+            background-color: #0d2818;
+            color: #6ee7b7;
+        }
+
+        [data-theme="dark"] .calendar-day.bg-purple-100 {
+            background-color: #1e1b4b;
+            color: #c084fc;
+        }
+
+        [data-theme="dark"] .calendar-day.bg-red-100 {
+            background-color: #450a0a;
+            color: #fca5a5;
+        }
+
+        [data-theme="dark"] .bg-gray-200 {
+            background-color: #14532d;
+            color: #6ed7b7;
+        }
+
+        [data-theme="dark"] .bg-gray-50 {
+            background-color: #0d2818;
+        }
+
+        .dark-mode-toggle {
+            background: rgba(255, 255, 255, .15);
+            border: none;
+            border-radius: 8px;
+            padding: 6px 10px;
+            width: 44px;
+            text-align: center;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background .2s;
+            color: white;
+            line-height: 1;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255, 255, 255, .25);
+        }
+    </style>
+    <link rel="icon" type="image/jpeg" href="barangay-sun-logo.jpg">
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-gradient-to-r from-emerald-600 to-emerald-800 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-3">
+                    <img src="barangay-sun-logo.jpg" alt="Barangay Logo" class="w-10 h-10 object-contain">
+                    <span class="text-xl font-bold">Barangay Management</span>
+                </div>
+                <ul class="flex space-x-6 items-center">
+                    <li><a href="home.html" class="hover:text-blue-200 transition">Home</a></li>
+                    <li><a href="equipment.html" class="hover:text-blue-200 transition">Equipment</a></li>
+                    <li><a href="concerns.html" class="hover:text-blue-200 transition">Concerns</a></li>
+                    <li><a href="court-scheduling.html" class="text-yellow-400 font-semibold">Venue Reservation</a></li>
+                    <li id="adminLink" class="hidden"><a href="admin.html"
+                            class="hover:text-blue-200 transition">Admin</a></li>
+                    <li><button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">🌙</button>
+                    </li>
+                    <li><a href="#" id="logoutBtn" class="hover:text-red-300 transition">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">🏟️ Venue Reservation</h1>
+            <p class="text-gray-600">Book the barangay venues for your games and events</p>
+        </div>
+
+        <!-- Venue Selection -->
+        <div class="flex justify-center mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-2 flex gap-2">
+                <button onclick="selectVenue('basketball')" id="venue-basketball"
+                    class="px-6 py-3 rounded-lg font-semibold transition bg-emerald-600 text-white">
+                    🏀 Basketball Court
+                </button>
+                <button onclick="selectVenue('multipurpose')" id="venue-multipurpose"
+                    class="px-6 py-3 rounded-lg font-semibold transition bg-gray-200 text-gray-700 hover:bg-gray-300">
+                    🏢 Multi-Purpose Hall
+                </button>
+            </div>
+        </div>
+
+        <input type="hidden" id="selectedVenue" value="basketball">
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Calendar Section -->
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 id="calendarMonth" class="text-2xl font-bold text-gray-800">January 2025</h2>
+                    <div class="flex space-x-2">
+                        <button onclick="changeMonth(-1)"
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition shadow">
+                            ← Prev
+                        </button>
+                        <button onclick="changeMonth(1)"
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition shadow">
+                            Next →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Calendar Grid -->
+                <div class="grid grid-cols-7 gap-2 mb-4">
+                    <div class="text-center font-bold text-gray-500 py-2">Sun</div>
+                    <div class="text-center font-bold text-gray-500 py-2">Mon</div>
+                    <div class="text-center font-bold text-gray-500 py-2">Tue</div>
+                    <div class="text-center font-bold text-gray-500 py-2">Wed</div>
+                    <div class="text-center font-bold text-gray-500 py-2">Thu</div>
+                    <div class="text-center font-bold text-gray-500 py-2">Fri</div>
+                    <div class="text-center font-bold text-gray-500 py-2">Sat</div>
+                </div>
+                <div id="calendarGrid" class="grid grid-cols-7 gap-2">
+                    <!-- Calendar rendered here -->
+                </div>
+
+                <!-- Legend -->
+                <div class="flex justify-center space-x-6 text-sm">
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-green-500 rounded mr-2"></div>
+                        <span>Available</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-purple-500 rounded mr-2"></div>
+                        <span>Event</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-red-500 rounded mr-2"></div>
+                        <span>Reserved</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-blue-500 rounded mr-2"></div>
+                        <span>Selected</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Booking Form Section -->
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <h2 id="selectedDateTitle" class="text-2xl font-bold text-gray-800 mb-4">📅 Reserve Your Venue</h2>
+
+                <div id="selectedVenueDisplay"
+                    class="bg-emerald-100 text-emerald-800 px-4 py-2 rounded-lg mb-4 text-center font-semibold">
+                    🏀 Basketball Court
+                </div>
+
+                <!-- New Reservation Button -->
+                <button onclick="showBookingForm()"
+                    class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition transform hover:scale-105 mb-4">
+                    ➕ New Reservation
+                </button>
+
+                <!-- Booking Form -->
+                <form id="bookingForm" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">📆 Select Date</label>
+                        <input type="date" id="bookingDate" required
+                            class="w-full border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">⏰ Start Time</label>
+                        <select id="bookingTime" required
+                            class="w-full border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none transition">
+                            <option value="">-- Choose Time --</option>
+                            <option value="6:00 AM">6:00 AM</option>
+                            <option value="7:00 AM">7:00 AM</option>
+                            <option value="8:00 AM">8:00 AM</option>
+                            <option value="9:00 AM">9:00 AM</option>
+                            <option value="10:00 AM">10:00 AM</option>
+                            <option value="11:00 AM">11:00 AM</option>
+                            <option value="12:00 PM">12:00 PM</option>
+                            <option value="1:00 PM">1:00 PM</option>
+                            <option value="2:00 PM">2:00 PM</option>
+                            <option value="3:00 PM">3:00 PM</option>
+                            <option value="4:00 PM">4:00 PM</option>
+                            <option value="5:00 PM">5:00 PM</option>
+                            <option value="6:00 PM">6:00 PM</option>
+                            <option value="7:00 PM">7:00 PM</option>
+                            <option value="8:00 PM">8:00 PM</option>
+                            <option value="9:00 PM">9:00 PM</option>
+                            <option value="10:00 PM">10:00 PM</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">⏰ End Time</label>
+                        <select id="bookingEndTime" required
+                            class="w-full border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none transition">
+                            <option value="">-- Choose Time --</option>
+                            <option value="6:00 AM">6:00 AM</option>
+                            <option value="7:00 AM">7:00 AM</option>
+                            <option value="8:00 AM">8:00 AM</option>
+                            <option value="9:00 AM">9:00 AM</option>
+                            <option value="10:00 AM">10:00 AM</option>
+                            <option value="11:00 AM">11:00 AM</option>
+                            <option value="12:00 PM">12:00 PM</option>
+                            <option value="1:00 PM">1:00 PM</option>
+                            <option value="2:00 PM">2:00 PM</option>
+                            <option value="3:00 PM">3:00 PM</option>
+                            <option value="4:00 PM">4:00 PM</option>
+                            <option value="5:00 PM">5:00 PM</option>
+                            <option value="6:00 PM">6:00 PM</option>
+                            <option value="7:00 PM">7:00 PM</option>
+                            <option value="8:00 PM">8:00 PM</option>
+                            <option value="9:00 PM">9:00 PM</option>
+                            <option value="10:00 PM">10:00 PM</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">📝 Purpose</label>
+                        <textarea id="bookingPurpose" required placeholder="Describe the purpose of your reservation..."
+                            class="w-full border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none transition h-24 resize-none"></textarea>
+                    </div>
+
+                    <div class="flex space-x-2">
+                        <button type="submit"
+                            class="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition">
+                            ✅ Submit Reservation
+                        </button>
+                        <button type="button" onclick="hideBookingForm()"
+                            class="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition">
+                            ❌ Cancel
+                        </button>
+                    </div>
+                </form>
+
+                <div id="bookingFormMessage" class="mt-4"></div>
+            </div>
+        </div>
+
+        <!-- My Reservations Section -->
+        <div class="mt-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📋 My Reservations</h2>
+            <div id="myBookingsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Bookings rendered here -->
+            </div>
+        </div>
+
+        <!-- Upcoming Events Section -->
+        <div class="mt-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">🎉 Upcoming Court Events</h2>
+            <div id="upcomingEventsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Events rendered here -->
+            </div>
+        </div>
+
+        <!-- All Bookings Section (Admin Only) -->
+        <div id="allBookingsSection" class="hidden mt-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📋 All Reservations (Admin)</h2>
+            <div id="allBookingsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- All bookings rendered here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast"
+        class="fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 transition-transform duration-300">
+        <!-- Toast message -->
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/crypto-utils.js"></script>
+        <script src="js/app.js"></script>
+    <script src="js/darkmode.js"></script>
+    <script>
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let selectedDate = null;
+
+        // RBAC: Residents only — admins are redirected to admin.html
+        if (!requireUser()) { throw new Error('RBAC redirect'); }
+        const user = getCurrentUser();
+
+        // Show admin link for admins
+        if (user && user.role === 'admin') {
+            document.getElementById('adminLink').classList.remove('hidden');
+            document.getElementById('allBookingsSection').classList.remove('hidden');
+        }
+
+        // Render initial data
+        async function init() {
+            await renderCalendar();
+            await renderMyBookings();
+            await renderUpcomingEvents();
+            if (user.role === 'admin') {
+                await renderAllBookings();
+            }
+        }
+        init();
+
+        // Real-time refresh: re-render calendar every 60 seconds
+        // so expired timeslots (completed reservations) clear automatically
+        setInterval(async () => {
+            await renderCalendar();
+        }, 60000);
+
+        // Venue selection
+        function selectVenue(venue) {
+            document.getElementById('selectedVenue').value = venue;
+
+            const basketballBtn = document.getElementById('venue-basketball');
+            const multipurposeBtn = document.getElementById('venue-multipurpose');
+            const venueDisplay = document.getElementById('selectedVenueDisplay');
+
+            if (venue === 'basketball') {
+                basketballBtn.className = 'px-6 py-3 rounded-lg font-semibold transition bg-emerald-600 text-white';
+                multipurposeBtn.className = 'px-6 py-3 rounded-lg font-semibold transition bg-gray-200 text-gray-700 hover:bg-gray-300';
+                venueDisplay.innerHTML = '🏀 Basketball Court';
+                venueDisplay.className = 'bg-emerald-100 text-emerald-800 px-4 py-2 rounded-lg mb-4 text-center font-semibold';
+            } else {
+                basketballBtn.className = 'px-6 py-3 rounded-lg font-semibold transition bg-gray-200 text-gray-700 hover:bg-gray-300';
+                multipurposeBtn.className = 'px-6 py-3 rounded-lg font-semibold transition bg-emerald-600 text-white';
+                venueDisplay.innerHTML = '🏢 Multi-Purpose Hall';
+                venueDisplay.className = 'bg-blue-100 text-blue-800 px-4 py-2 rounded-lg mb-4 text-center font-semibold';
+            }
+
+            // Re-render calendar to show bookings for selected venue
+            renderCalendar();
+        }
+
+        // Render calendar
+        async function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const monthTitle = document.getElementById('calendarMonth');
+
+            const months = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+
+            monthTitle.textContent = `${months[currentMonth]} ${currentYear}`;
+
+            const bookings = await getCourtBookings();
+            const events = await getEvents();
+            const approvedEvents = events.filter(e => e.status === 'approved');
+
+            // Create a map of dates with events
+            const eventDates = {};
+            approvedEvents.forEach(e => {
+                eventDates[e.date] = e;
+            });
+
+            // Filter bookings by selected venue
+            const selectedVenue = document.getElementById('selectedVenue').value;
+            const venueBookings = bookings.filter(b => b.status !== 'cancelled' && b.status !== 'completed' && b.venue === selectedVenue);
+            const bookedDates = venueBookings.map(b => b.date);
+
+            grid.innerHTML = '';
+
+            // Get first day of month and days in month
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Empty cells for days before first day of month
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'p-2';
+                grid.appendChild(empty);
+            }
+
+            // Days of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day p-2 text-center rounded-lg cursor-pointer transition-all duration-200 font-medium';
+                dayElement.innerHTML = `<span class="text-lg">${day}</span>`;
+
+                // Check if date has an event
+                const hasEvent = eventDates[dateStr];
+
+                // Check if date is in the past OR today but past 10 PM (facility closed)
+                const dateObj = new Date(currentYear, currentMonth, day);
+                const nowForCheck = new Date();
+                const isTodayClosed = dateObj.getTime() === today.getTime() && nowForCheck.getHours() >= 22;
+                if (dateObj < today || isTodayClosed) {
+                    dayElement.classList.add('bg-gray-200', 'text-gray-400', 'cursor-not-allowed');
+                    if (isTodayClosed) {
+                        dayElement.innerHTML += '<div class="text-xs" style="font-size:9px;color:#9ca3af;">Closed</div>';
+                        dayElement.title = 'Facility is closed for today (after 10 PM)';
+                        dayElement.onclick = () => showToast('Facility is closed for today. Opens again at 6 AM tomorrow.', 'error');
+                    }
+                } else if (hasEvent) {
+                    // Date has an event - solid violet
+                    dayElement.classList.add('bg-purple-600', 'text-white', 'cursor-pointer', 'hover:bg-purple-700');
+                    dayElement.innerHTML += '<div class="text-xs">🎉 Event</div>';
+                    const timeDisplay = hasEvent.end_time ? `${hasEvent.time} - ${hasEvent.end_time}` : hasEvent.time;
+                    dayElement.title = `${hasEvent.title} - ${timeDisplay}`;
+                } else if (bookedDates.includes(dateStr)) {
+                    dayElement.classList.add('bg-red-100', 'text-red-700', 'cursor-pointer');
+                    dayElement.innerHTML += '<div class="text-xs">Reserved</div>';
+                } else {
+                    dayElement.classList.add('bg-green-100', 'text-green-700', 'hover:bg-green-200');
+                }
+
+                // Check if today
+                if (dateObj.getTime() === today.getTime()) {
+                    dayElement.classList.add('today');
+                }
+
+                // Check if selected
+                if (selectedDate === dateStr) {
+                    dayElement.classList.remove('bg-green-100', 'bg-gray-200', 'bg-purple-100', 'bg-purple-600', 'text-white', 'hover:bg-purple-700');
+                    dayElement.classList.add('selected', 'text-green-700');
+                }
+
+                dayElement.onclick = () => selectDate(dateStr);
+                grid.appendChild(dayElement);
+            }
+        }
+
+        async function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            await renderCalendar();
+        }
+
+        async function selectDate(dateStr) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const dateObj = new Date(dateStr);
+
+            if (dateObj < today) {
+                showToast('Cannot select past dates', 'error');
+                return;
+            }
+
+            // Check if there's an event on this date
+            const eventsRaw = await getEvents();
+            const events = eventsRaw.filter(e => e.status === 'approved');
+            const eventOnDate = events.find(e => e.date === dateStr);
+
+            selectedDate = dateStr;
+            await renderCalendar();
+
+            // Show booking form
+            document.getElementById('selectedDateTitle').innerHTML = `📅 Reserve for <span class="text-blue-600">${formatDate(dateStr)}</span>`;
+
+            const submitBtn = document.getElementById('bookingForm').querySelector('button[type="submit"]');
+
+            if (eventOnDate) {
+                // Show informational banner — booking is still allowed outside the event time
+                const timeDisplay = eventOnDate.end_time ? `${eventOnDate.time} - ${eventOnDate.end_time}` : eventOnDate.time;
+                document.getElementById('bookingFormMessage').innerHTML = `
+                    <div style="background:linear-gradient(135deg,#6d28d9,#7c3aed);color:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;">
+                        <div style="font-size:14px;font-weight:800;margin-bottom:4px;">🎉 Official Barangay Event on This Day</div>
+                        <p style="margin:0 0 4px;font-size:13px;"><strong>Event:</strong> ${eventOnDate.title}</p>
+                        <p style="margin:0 0 4px;font-size:13px;"><strong>Blocked Time:</strong> ${timeDisplay} (incl. cleanup)</p>
+                        <p style="margin:0;font-size:11px;opacity:0.85;">⚠️ You can still reserve slots outside this time window. Overlapping time slots will be rejected.</p>
+                    </div>
+                `;
+
+                // Still allow form submission — bookCourt will reject overlapping times
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                submitBtn.classList.add('bg-gradient-to-r', 'hover:scale-105');
+                submitBtn.innerHTML = '✅ Submit Reservation';
+            } else {
+                document.getElementById('bookingFormMessage').innerHTML = '';
+
+                // Enable form submission
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                submitBtn.classList.add('bg-gradient-to-r', 'hover:scale-105');
+                submitBtn.innerHTML = '✅ Submit Reservation';
+            }
+
+            document.getElementById('bookingForm').classList.remove('hidden');
+            document.getElementById('bookingDate').value = dateStr;
+        }
+
+        function showBookingForm() {
+            document.getElementById('selectedDateTitle').innerHTML = '📅 <span class="text-blue-600">Reserve Your Court</span>';
+            document.getElementById('bookingForm').classList.remove('hidden');
+            document.getElementById('bookingDate').value = '';
+            document.getElementById('bookingTime').value = '';
+            document.getElementById('bookingEndTime').value = '';
+            document.getElementById('bookingPurpose').value = '';
+            document.getElementById('bookingFormMessage').innerHTML = '';
+
+            const submitBtn = document.getElementById('bookingForm').querySelector('button[type="submit"]');
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            submitBtn.classList.add('bg-gradient-to-r', 'hover:scale-105');
+            submitBtn.innerHTML = '✅ Submit Reservation';
+        }
+
+        function hideBookingForm() {
+            document.getElementById('bookingForm').classList.add('hidden');
+            document.getElementById('bookingFormMessage').innerHTML = '';
+            selectedDate = null;
+            renderCalendar();
+        }
+
+        // Custom toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500'
+            };
+            toast.className = `fixed bottom-4 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg transition-transform duration-300`;
+            toast.textContent = message;
+            toast.style.transform = 'translateY(0)';
+            setTimeout(() => {
+                toast.style.transform = 'translateY(5rem)';
+            }, 3000);
+        }
+
+        // Handle booking form submission
+        document.getElementById('bookingForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const venue = document.getElementById('selectedVenue').value;
+            const venueName = venue === 'basketball' ? 'Basketball Court' : 'Multi-Purpose Hall';
+
+            const bookingData = {
+                date: document.getElementById('bookingDate').value,
+                time: document.getElementById('bookingTime').value,
+                end_time: document.getElementById('bookingEndTime').value,
+                purpose: document.getElementById('bookingPurpose').value,
+                venue: venue,
+                venueName: venueName
+            };
+
+            const result = await bookCourt(bookingData);
+
+            if (result.success) {
+                showToast(result.message, 'success');
+                hideBookingForm();
+                await renderCalendar();
+                await renderMyBookings();
+                await renderUpcomingEvents();
+                if (user.role === 'admin') {
+                    await renderAllBookings();
+                }
+            } else {
+                showToast(result.message, 'error');
+            }
+        });
+
+        // Render my bookings
+        async function renderMyBookings() {
+            const container = document.getElementById('myBookingsList');
+            const courtBookingsRaw = await getCourtBookings();
+            const bookings = courtBookingsRaw.filter(b => b.userId === user.id);
+
+            if (bookings.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-8">
+                        <p class="text-gray-500 text-lg">📭 No reservations yet.</p>
+                        <p class="text-gray-400">Click "New Reservation" to reserve the basketball court.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort by date (newest first)
+            bookings.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            let html = '';
+            bookings.forEach(booking => {
+                html += renderBookingCard(booking, true);
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Render upcoming events
+        async function renderUpcomingEvents() {
+            const container = document.getElementById('upcomingEventsList');
+            const eventsRaw = await getEvents();
+            const events = eventsRaw.filter(e => e.status === 'approved');
+
+            // Filter to upcoming events only
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const upcomingEvents = events.filter(e => new Date(e.date + 'T00:00:00') >= today);
+
+            if (upcomingEvents.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-8">
+                        <p class="text-gray-500 text-lg">🎉 No upcoming events.</p>
+                        <p class="text-gray-400">The court is available for reservation.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort by date
+            upcomingEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            let html = '';
+            upcomingEvents.forEach(event => {
+                const timeDisplay = event.end_time ? `${event.time} - ${event.end_time}` : event.time;
+                html += `
+                    <div class="bg-gradient-to-r from-purple-500 to-purple-700 rounded-xl p-5 text-white">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h4 class="font-bold text-lg">${event.title}</h4>
+                                <p class="text-purple-200 text-sm">${event.location}</p>
+                            </div>
+                            <span class="bg-white text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">
+                                🎉 Event
+                            </span>
+                        </div>
+                        <div class="space-y-1 text-sm">
+                            <p>📅 ${formatDate(event.date)}</p>
+                            <p>⏰ ${timeDisplay}</p>
+                            <p>👤 Organizer: ${event.organizer}</p>
+                            ${event.capacity ? `<p class="font-bold text-purple-200">👥 Capacity: ${event.capacity} max</p>` : ''}
+                        </div>
+                        ${event.description ? `<div class="mt-3 text-sm bg-black/20 p-3 rounded-lg italic shadow-inner border border-white/10">💬 ${event.description}</div>` : ''}
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Render all bookings (admin)
+        async function renderAllBookings() {
+            if (user.role !== 'admin') return;
+
+            const container = document.getElementById('allBookingsList');
+            const bookings = await getCourtBookings();
+
+            if (bookings.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-8">
+                        <p class="text-gray-500 text-lg">📭 No reservations yet.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort by date (newest first)
+            bookings.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            let html = '';
+            bookings.forEach(booking => {
+                html += renderBookingCard(booking, false);
+            });
+
+            container.innerHTML = html;
+        }
+
+        function renderBookingCard(booking, isMyBooking) {
+            const statusClass = booking.status === 'cancelled'
+                ? 'bg-red-100 text-red-800 border-red-300'
+                : 'bg-green-100 text-green-800 border-green-300';
+            const statusText = booking.status === 'cancelled' ? '❌ Cancelled' : '✅ Reserved';
+            const isAdmin = user.role === 'admin';
+            const canCancel = isAdmin || (isMyBooking && booking.status !== 'cancelled');
+
+            let html = `
+                <div class="booking-card bg-white border-2 rounded-xl p-4 transition hover:shadow-lg ${booking.status === 'cancelled' ? 'opacity-60' : ''}">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-800">📅 ${formatDate(booking.date)}</h3>
+                            <p class="text-gray-500">⏰ ${booking.time}</p>
+                            <p class="text-emerald-600 font-semibold">${booking.venueName || 'Basketball Court'}</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-sm font-semibold border ${statusClass}">${statusText}</span>
+                    </div>
+                    
+                    <div class="space-y-2 mb-3">
+                        <p class="text-gray-600"><span class="font-medium">👤 Reserved by:</span> ${booking.userName}</p>
+                        <p class="text-gray-600"><span class="font-medium">📝 Purpose:</span> ${booking.purpose}</p>
+                    </div>
+            `;
+
+            // Admin comment
+            if (booking.adminComment) {
+                html += `
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded-r mb-3">
+                        <p class="text-yellow-800 text-sm"><span class="font-bold">💬 Admin:</span> ${booking.adminComment}</p>
+                    </div>
+                `;
+            }
+
+            // Replies
+            if (booking.replies && booking.replies.length > 0) {
+                html += '<div class="space-y-2 mb-3">';
+                html += '<p class="font-medium text-gray-700">💬 Replies:</p>';
+                booking.replies.forEach(reply => {
+                    html += `
+                        <div class="bg-gray-50 p-2 rounded-lg">
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>👤 ${reply.userName}</span>
+                                <span>${formatDate(reply.createdAt)}</span>
+                            </div>
+                            <p class="text-gray-700 text-sm">${reply.text}</p>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+
+            // Reply form
+            if (booking.status !== 'cancelled') {
+                html += `
+                    <div class="flex space-x-2 mb-3">
+                        <input type="text" id="reply-${booking.id}" placeholder="Write a reply..." class="flex-1 border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
+                        <button onclick="submitReply(${booking.id})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm transition">Reply</button>
+                    </div>
+                `;
+            }
+
+            // Actions
+            html += '<div class="flex flex-wrap gap-2">';
+            if (canCancel) {
+                html += `<button onclick="cancelBooking(${booking.id})" class="${booking.status === 'cancelled' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'} text-white px-3 py-1 rounded-lg text-sm transition">
+                    ${booking.status === 'cancelled' ? 'Restore' : 'Cancel'}
+                </button>`;
+            }
+            if (isAdmin) {
+                html += `
+                    <input type="text" id="adminComment-${booking.id}" placeholder="Add comment..." class="flex-1 border-2 border-gray-200 rounded-lg px-3 py-1 text-sm focus:border-blue-500 focus:outline-none">
+                    <button onclick="addAdminComment(${booking.id})" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-lg text-sm transition">Comment</button>
+                    <button onclick="deleteBooking(${booking.id})" class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-lg text-sm transition">Delete</button>
+                `;
+            }
+            html += '</div>';
+            html += '</div>';
+
+            return html;
+        }
+
+        async function cancelBooking(bookingId) {
+            const result = await cancelCourtBooking(bookingId);
+            if (result.success) {
+                showToast(result.message, 'success');
+                await renderMyBookings();
+                await renderAllBookings();
+                await renderCalendar();
+            } else {
+                showToast(result.message, 'error');
+            }
+        }
+
+        async function submitReply(bookingId) {
+            const replyInput = document.getElementById(`reply-${bookingId}`);
+            const replyText = replyInput.value.trim();
+
+            if (!replyText) {
+                showToast('Please write a reply', 'error');
+                return;
+            }
+
+            const result = await addReply(bookingId, replyText);
+            if (result.success) {
+                showToast(result.message, 'success');
+                await renderMyBookings();
+                await renderAllBookings();
+            } else {
+                showToast(result.message, 'error');
+            }
+        }
+
+        async function addAdminComment(bookingId) {
+            const commentInput = document.getElementById(`adminComment-${bookingId}`);
+            const commentText = commentInput.value.trim();
+
+            if (!commentText) {
+                showToast('Please enter a comment', 'error');
+                return;
+            }
+
+            const result = await window.addAdminComment(bookingId, commentText);
+            if (result.success) {
+                showToast(result.message, 'success');
+                commentInput.value = '';
+                await renderMyBookings();
+                await renderAllBookings();
+            } else {
+                showToast(result.message, 'error');
+            }
+        }
+
+        async function deleteBooking(bookingId) {
+            if (await showConfirmModal('Are you sure you want to delete this reservation?', 'Delete Reservation', 'Yes, Delete', 'Cancel', 'danger')) {
+                const result = await window.deleteBooking(bookingId); // Avoid self-reference
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    await renderMyBookings();
+                    await renderAllBookings();
+                    await renderCalendar();
+                } else {
+                    showToast(result.message, 'error');
+                }
+            }
+        }
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', function (e) {
+            e.preventDefault();
+            logoutUser();
+        });
+
+        // Initialize
+        // init is already defined above
+    </script>
+</body>
+
+</html>

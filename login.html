@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Barangay Sta. Lucia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="barangay-sun-logo.jpg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','sans-serif'] }, colors: { gov: { dark:'#0f1f3d', primary:'#1a3a6b', gold:'#f5a623' } } } } }</script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f2547;
+            background-image: linear-gradient(rgba(15,31,61,0.82), rgba(15,31,61,0.82)), url('barangay%20hall.png');
+            background-size: cover; background-position: center;
+            background-repeat: no-repeat; background-attachment: fixed;
+        }
+        .gov-input:focus {
+            outline: none; border-color: #1a3a6b;
+            box-shadow: 0 0 0 3px rgba(26,58,107,0.18); background: #fff;
+        }
+        .code-digit { transition: all 0.18s; font-family: monospace; }
+        .code-digit:focus { outline: none; border-color: #1a3a6b; box-shadow: 0 0 0 3px rgba(26,58,107,0.18); }
+        .code-digit.filled { border-color: #1a3a6b; background: #f0f4ff; }
+        .hidden { display: none !important; }
+        #toast {
+            position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+            padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 600;
+            transform: translateY(80px); transition: transform 0.3s ease;
+            pointer-events: none; box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+        #toast.success { background: #1a3a6b; color: #fff; }
+        #toast.error   { background: #dc2626; color: #fff; }
+        .eye-toggle { background: none; border: none; cursor: pointer; }
+        .page-wrap { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+<div class="page-wrap">
+
+    <!-- Login Card -->
+    <div class="w-full max-w-md rounded-xl overflow-hidden" style="background:#fff; box-shadow: 0 28px 64px rgba(0,0,0,0.55), 0 4px 16px rgba(0,0,0,0.3);">
+
+        <!-- Top color bar (navy default; JS updates to gold gradient for admin) -->
+        <div class="h-1.5" id="topBar" style="background: linear-gradient(90deg, #0f1f3d, #1e3a5f, #0f1f3d);"></div>
+
+        <!-- Branding header -->
+        <div class="flex flex-col items-center text-center px-8 pt-5 pb-4" style="background:#F9FAFB; border-bottom: 1px solid #E5E7EB;">
+            <div class="w-16 h-16 rounded-full overflow-hidden mb-2 flex-shrink-0"
+                 style="border: 2.5px solid #f5a623; box-shadow: 0 4px 16px rgba(245,166,35,0.28);">
+                <img src="barangay-sun-logo.jpg" alt="Barangay Sta. Lucia" class="w-full h-full object-cover">
+            </div>
+            <p class="font-extrabold text-gray-800 tracking-wide uppercase mb-0.5" style="font-size:13px;">Barangay Sta. Lucia</p>
+            <p class="text-xs text-gray-400 font-medium mb-2.5">Novaliches, Quezon City &bull; Community Services</p>
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-extrabold tracking-widest uppercase px-3 py-1 rounded" id="badge1"
+                      style="background:#0f1f3d; color:#f5a623; letter-spacing:0.1em;">Resident Portal</span>
+                <span class="text-xs font-extrabold tracking-widest uppercase px-3 py-1 rounded" id="badge2"
+                      style="background:#e8eef6; color:#1e3a5f; border:1px solid #c0cfe8; letter-spacing:0.1em;">Residents Only</span>
+            </div>
+        </div>
+
+        <!-- Form body -->
+        <div class="px-8 pt-5 pb-5">
+            <h2 class="font-bold text-gray-800 mb-0.5" style="font-size:15px;" id="loginFormTitle">Sign In to Your Account</h2>
+            <p class="text-xs text-gray-500 mb-4" id="loginFormSubtitle">Enter your Barangay ID Number to continue.</p>
+
+            <form id="loginForm">
+                <input type="hidden" id="csrfToken" name="csrfToken">
+
+                <div id="lockoutWarning" class="hidden rounded-lg px-4 py-3 mb-4 text-sm font-medium"
+                     style="background:#FEF2F2; border:1px solid #FECACA; color:#991B1B;">
+                    🔒 Too many failed attempts. Please try again later.
+                </div>
+
+                <!-- Barangay ID / Username -->
+                <div class="field mb-4">
+                    <label for="username" id="usernameLabel"
+                           class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">Barangay ID Number</label>
+                    <div class="field-wrap relative">
+                        <input type="text" id="username" required placeholder="Enter your Barangay ID"
+                               autocomplete="username" maxlength="50" oninput="checkAdminField()"
+                               class="gov-input w-full px-3.5 py-2 text-sm text-gray-800 rounded-lg transition-all"
+                               style="border:1.5px solid #D1D5DB; background:#F9FAFB; font-family:inherit;">
+                    </div>
+                </div>
+
+                <!-- Password (hidden for residents, shown for admin) -->
+                <div class="field mb-3 hidden" id="passwordField">
+                    <label for="password" id="passwordLabel"
+                           class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">Password</label>
+                    <div class="field-wrap relative">
+                        <input type="password" id="password" placeholder="Enter your password"
+                               autocomplete="current-password" maxlength="128"
+                               class="gov-input w-full px-3.5 py-2 text-sm text-gray-800 rounded-lg transition-all"
+                               style="border:1.5px solid #D1D5DB; background:#F9FAFB; font-family:inherit; padding-right:42px;">
+                        <button type="button" class="eye-toggle absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                                onclick="togglePassword('password', this)" aria-label="Toggle password visibility">
+                            <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg class="icon-eye-off" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        </button>
+                    </div>
+                    <div style="text-align:right;margin-top:6px;">
+                        <a href="forgot-password.html"
+                           style="font-size:12px;color:#1e3a5f;font-weight:600;text-decoration:none;"
+                           onmouseover="this.style.textDecoration='underline'"
+                           onmouseout="this.style.textDecoration='none'">Forgot Password?</a>
+                    </div>
+                </div>
+
+                <!-- Remember me -->
+                <div class="flex items-center gap-2 mb-4">
+                    <input type="checkbox" id="rememberMe" class="w-4 h-4 rounded cursor-pointer" style="accent-color:#0f1f3d;">
+                    <label for="rememberMe" class="text-xs text-gray-500 cursor-pointer">Remember me on this device</label>
+                </div>
+
+                <div class="h-px mb-4" style="background:#E5E7EB;"></div>
+
+                <button type="submit" id="loginBtn"
+                        class="w-full py-3 rounded-lg font-extrabold text-base tracking-wide transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        style="background:#16a34a; color:#fff; font-family:inherit; box-shadow:0 4px 16px rgba(22,163,74,0.35);"
+                        onmouseover="if(!this.disabled)this.style.filter='brightness(0.88)'"
+                        onmouseout="if(!this.disabled)this.style.filter=''">
+                    Sign In
+                </button>
+            </form>
+
+            <!-- TOTP Panel (hidden by default) -->
+            <div id="totpPanel" class="rounded-xl p-6 mt-0" style="display:none; background:#f8fafc; border:1.5px solid #e2e8f0;">
+                <div class="font-extrabold text-gray-800 mb-1" style="font-size:15px;">Two-Factor Authentication</div>
+                <p class="text-sm text-gray-500 mb-4 leading-relaxed">
+                    Enter the 6-digit code from your <strong>Google Authenticator</strong> app to verify your identity.
+                </p>
+                <div class="flex items-center justify-center mb-4">
+                    <span class="text-xs text-gray-400">Code refreshes every <strong id="totpCountdown">30</strong>s</span>
+                </div>
+                <div class="code-wrap flex gap-2 justify-center mb-4">
+                    <input class="code-digit w-11 h-14 border-2 rounded-lg text-2xl font-bold text-center text-gray-800 bg-white" style="border-color:#D1D5DB;" type="text" inputmode="numeric" maxlength="1" id="td0">
+                    <input class="code-digit w-11 h-14 border-2 rounded-lg text-2xl font-bold text-center text-gray-800 bg-white" style="border-color:#D1D5DB;" type="text" inputmode="numeric" maxlength="1" id="td1">
+                    <input class="code-digit w-11 h-14 border-2 rounded-lg text-2xl font-bold text-center text-gray-800 bg-white" style="border-color:#D1D5DB;" type="text" inputmode="numeric" maxlength="1" id="td2">
+                    <input class="code-digit w-11 h-14 border-2 rounded-lg text-2xl font-bold text-center text-gray-800 bg-white" style="border-color:#D1D5DB;" type="text" inputmode="numeric" maxlength="1" id="td3">
+                    <input class="code-digit w-11 h-14 border-2 rounded-lg text-2xl font-bold text-center text-gray-800 bg-white" style="border-color:#D1D5DB;" type="text" inputmode="numeric" maxlength="1" id="td4">
+                    <input class="code-digit w-11 h-14 border-2 rounded-lg text-2xl font-bold text-center text-gray-800 bg-white" style="border-color:#D1D5DB;" type="text" inputmode="numeric" maxlength="1" id="td5">
+                </div>
+                <div id="totpError" class="hidden rounded-lg px-4 py-2.5 mb-3 text-sm font-medium"
+                     style="background:#FEF2F2; border:1px solid #FECACA; color:#991B1B;">
+                    Invalid code. Please try again.
+                </div>
+                <button type="button" id="totpVerifyBtn" onclick="submitTOTPCode()"
+                        class="w-full py-3 rounded-lg font-extrabold text-base tracking-wide transition-all duration-200 mb-2.5 disabled:opacity-50"
+                        style="background:#0f1f3d; color:#f5a623; font-family:inherit; box-shadow:0 4px 14px rgba(15,31,61,0.30);"
+                        onmouseover="if(!this.disabled) this.style.background='#1a3a6b'"
+                        onmouseout="if(!this.disabled) this.style.background='#0f1f3d'">
+                    Verify Code
+                </button>
+                <button type="button" onclick="cancelTOTP()"
+                        class="w-full py-2.5 rounded-lg font-semibold text-sm transition-all duration-200"
+                        style="border:1.5px solid #D1D5DB; background:transparent; color:#6B7280; font-family:inherit;"
+                        onmouseover="this.style.borderColor='#0f1f3d'; this.style.color='#0f1f3d'"
+                        onmouseout="this.style.borderColor='#D1D5DB'; this.style.color='#6B7280'">
+                    Back to Login
+                </button>
+            </div>
+        </div>
+
+        <!-- Card footer -->
+        <div class="flex items-center justify-center gap-2 px-9 py-3.5" style="background:#F9FAFB; border-top:1px solid #E5E7EB;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f5a623" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            <p class="text-xs font-semibold uppercase tracking-wide text-gray-500" id="footerText">
+                Registered Residents Only &bull;
+                <a href="terms.html" target="_blank" style="color:#0f1f3d;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Terms &amp; Conditions</a>
+            </p>
+        </div>
+    </div><!-- end card -->
+
+
+</div><!-- end page-wrap -->
+
+<!-- Back to Home — fixed top-left -->
+<a href="index.html" style="
+    position: fixed; top: 20px; left: 20px; z-index: 200;
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.10);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.22);
+    color: #fff; text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 600;
+    padding: 9px 16px 9px 12px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    letter-spacing: 0.01em;
+" onmouseover="this.style.background='rgba(255,255,255,0.20)';this.style.boxShadow='0 4px 20px rgba(0,0,0,0.35)'"
+   onmouseout="this.style.background='rgba(255,255,255,0.10)';this.style.boxShadow='0 2px 12px rgba(0,0,0,0.25)'">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+    Back to Home
+</a>
+
+<div id="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/crypto-utils.js"></script>
+    <script src="js/incident-manager.js"></script>
+    <script src="js/otpauth.js"></script>
+    <script src="js/totp-handler.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        const SECURITY = { maxAttempts: 5, lockoutDuration: 15 * 60 * 1000 };
+
+
+        function generateCSRFToken() {
+            const token = crypto.randomUUID();
+            document.getElementById('csrfToken').value = token;
+            sessionStorage.setItem('csrfToken', token);
+        }
+
+        function sanitizeInput(input) {
+            const div = document.createElement('div');
+            div.textContent = input;
+            return div.innerHTML;
+        }
+
+        function validateUsername(username) {
+            return /^[a-zA-Z0-9_]{3,50}$/.test(username);
+        }
+
+        function getLoginAttempts() {
+            const a = localStorage.getItem('loginAttempts');
+            return a ? JSON.parse(a) : { count: 0, lockedUntil: null, username: '' };
+        }
+
+        function saveLoginAttempts(a) { localStorage.setItem('loginAttempts', JSON.stringify(a)); }
+
+        function updateAttemptsWarning() {
+            const a = getLoginAttempts();
+            const lock = document.getElementById('lockoutWarning');
+            const btn  = document.getElementById('loginBtn');
+            if (a.lockedUntil && Date.now() < a.lockedUntil) {
+                lock.classList.remove('hidden');
+                btn.disabled = true; btn.textContent = '🔒 Account Locked';
+                return true;
+            }
+            lock.classList.add('hidden');
+            btn.disabled = false; btn.textContent = 'Sign In';
+            return false;
+        }
+
+        function resetLoginAttempts() { saveLoginAttempts({ count: 0, lockedUntil: null, username: '' }); updateAttemptsWarning(); }
+
+        function recordFailedAttempt(username) {
+            const a = getLoginAttempts();
+            if (a.username !== username) { a.count = 0; a.username = username; }
+            a.count++;
+            if (a.count >= SECURITY.maxAttempts) a.lockedUntil = Date.now() + SECURITY.lockoutDuration;
+            saveLoginAttempts(a); updateAttemptsWarning();
+            // ISO A.16 - track failed logins for incident detection
+            if (typeof trackFailedLogin === 'function') trackFailedLogin(username);
+        }
+
+        function showToast(message, type = 'success') {
+            const t = document.getElementById('toast');
+            t.className = type; t.textContent = message;
+            t.style.transform = 'translateY(0)';
+            setTimeout(() => { t.style.transform = 'translateY(80px)'; }, 3000);
+        }
+
+
+
+        // OTP digit auto-focus
+        document.addEventListener('DOMContentLoaded', function () {
+            generateCSRFToken();
+            updateAttemptsWarning();
+
+            document.getElementById('username').addEventListener('input', function (e) {
+                // allow alphanumeric and dash for barangay ID
+                e.target.value = e.target.value.replace(/[^a-zA-Z0-9_\-]/g, '');
+            });
+
+            window.checkAdminField = function() {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('role') === 'admin') return; // Do not auto-toggle if explicitly in admin mode
+
+                const val = document.getElementById('username').value.toLowerCase();
+                const pwdField = document.getElementById('passwordField');
+                const userLabel = document.getElementById('usernameLabel');
+                const pwdLabel = document.getElementById('passwordLabel');
+                if (val.startsWith('admin')) {
+                    pwdField.classList.remove('hidden');
+                    document.getElementById('password').required = true;
+                    if (userLabel) userLabel.textContent = 'Username';
+                    if (pwdLabel) pwdLabel.textContent = 'Password';
+                } else {
+                    pwdField.classList.add('hidden');
+                    document.getElementById('password').required = false;
+                    document.getElementById('password').value = '';
+                    if (userLabel) userLabel.textContent = 'Barangay ID Number';
+                    if (pwdLabel) pwdLabel.textContent = 'Password (Admin)';
+                }
+            };
+
+            // Check if redirected due to suspension
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('suspended') === '1') {
+                const until = params.get('until') || 'a future date';
+                showToast(`🔒 Your account is suspended until ${until}.`, 'error');
+            }
+
+            // ── ROLE PRE-CONFIGURATION from ?role= param ──
+            const roleParam = params.get('role');
+            const titleEl = document.getElementById('loginFormTitle');
+            const subtitleEl = document.getElementById('loginFormSubtitle');
+            const usernameInput = document.getElementById('username');
+            const pwdField = document.getElementById('passwordField');
+            const pwdInput = document.getElementById('password');
+            const loginBtn = document.getElementById('loginBtn');
+
+            if (roleParam === 'admin') {
+                // ── Admin visual style ──
+                document.title = 'Admin Login - Barangay Sta. Lucia';
+                if (titleEl) titleEl.textContent = 'Sign In to Dashboard';
+                if (subtitleEl) subtitleEl.textContent = 'Authorized personnel only.';
+                const userLabel = document.getElementById('usernameLabel');
+                const pwdLabel  = document.getElementById('passwordLabel');
+                if (userLabel) userLabel.textContent = 'Username';
+                if (pwdLabel)  pwdLabel.textContent  = 'Password';
+                if (usernameInput) { usernameInput.placeholder = 'Enter admin username'; usernameInput.value = ''; }
+                if (pwdField) pwdField.classList.remove('hidden');
+                if (pwdInput) pwdInput.required = true;
+                // Admin button: dark navy
+                if (loginBtn) {
+                    loginBtn.style.background = '#0f2547';
+                    loginBtn.style.boxShadow  = '0 4px 16px rgba(15,37,71,0.40)';
+                    loginBtn.onmouseover = function(){ if(!this.disabled) this.style.filter='brightness(1.2)'; };
+                    loginBtn.onmouseout  = function(){ if(!this.disabled) this.style.filter=''; };
+                }
+                // Admin badges: navy + gold / red restricted
+                const b1 = document.getElementById('badge1');
+                const b2 = document.getElementById('badge2');
+                if (b1) { b1.textContent = 'Admin Portal'; b1.style.background = '#1A3A6B'; b1.style.color = '#FDB913'; b1.style.border = ''; }
+                if (b2) { b2.textContent = 'Restricted';   b2.style.background = '#FEF2F2'; b2.style.color = '#991B1B'; b2.style.border = '1px solid #FECACA'; }
+                // Top bar accent
+                const topBar = document.getElementById('topBar');
+                if (topBar) topBar.style.background = 'linear-gradient(90deg, #1A3A6B, #FDB913, #CE1126)';
+                // Footer text
+                const ft = document.getElementById('footerText');
+                if (ft) ft.innerHTML = 'Authorized Personnel Only &bull; <a href="terms.html" target="_blank" style="color:#0f1f3d;" onmouseover="this.style.textDecoration=\'underline\';" onmouseout="this.style.textDecoration=\'none\';">Terms &amp; Conditions</a>';
+            } else if (roleParam === 'resident') {
+                // ── Resident visual style (defaults already set in HTML) ──
+                document.title = 'Resident Login - Barangay Sta. Lucia';
+                if (titleEl) titleEl.textContent = 'Sign In to Your Account';
+                if (subtitleEl) subtitleEl.textContent = 'Enter your Barangay ID Number to continue.';
+                if (usernameInput) usernameInput.placeholder = 'Enter your Barangay ID';
+            }
+
+            // Check if already logged in
+            const user = getCurrentUser();
+            if (user) redirectToDashboard();
+        });
+
+        // ── TOTP State ────────────────────────────────────────────
+        let totpPendingUser  = null;
+        let totpRememberMe   = false;
+        let totpTimerInterval = null;
+
+        function startTOTPTimer() {
+            clearInterval(totpTimerInterval);
+            totpTimerInterval = setInterval(() => {
+                const remaining = 30 - (Math.floor(Date.now() / 1000) % 30);
+                const el = document.getElementById('totpCountdown');
+                if (el) el.textContent = remaining;
+            }, 1000);
+        }
+
+        function showTOTPPanel(user, rememberMe) {
+            totpPendingUser = user;
+            totpRememberMe  = rememberMe;
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('totpPanel').style.display = 'block';
+            clearTOTPDigits();
+            startTOTPTimer();
+            document.getElementById('td0').focus();
+        }
+
+        function cancelTOTP() {
+            clearInterval(totpTimerInterval);
+            totpPendingUser = null;
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('totpPanel').style.display = 'none';
+            document.getElementById('loginBtn').disabled = false;
+            document.getElementById('loginBtn').textContent = 'Sign In';
+        }
+
+        function getTOTPDigits() {
+            return [0,1,2,3,4,5].map(i => document.getElementById('td' + i).value).join('');
+        }
+        function clearTOTPDigits() {
+            for (let i = 0; i < 6; i++) {
+                document.getElementById('td' + i).value = '';
+                document.getElementById('td' + i).classList.remove('filled');
+            }
+            document.getElementById('totpError').classList.add('hidden');
+        }
+
+        // Wire up digit inputs in TOTP panel
+        document.addEventListener('DOMContentLoaded', () => {
+            for (let i = 0; i < 6; i++) {
+                const el = document.getElementById('td' + i);
+                el.addEventListener('input', function () {
+                    this.value = this.value.replace(/\D/g, '').slice(-1);
+                    this.classList.toggle('filled', !!this.value);
+                    if (this.value && i < 5) document.getElementById('td' + (i + 1)).focus();
+                    if (getTOTPDigits().length === 6) submitTOTPCode();
+                });
+                el.addEventListener('keydown', function (e) {
+                    if (e.key === 'Backspace' && !this.value && i > 0)
+                        document.getElementById('td' + (i - 1)).focus();
+                });
+                el.addEventListener('paste', function (e) {
+                    e.preventDefault();
+                    const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+                    for (let j = 0; j < 6; j++) {
+                        const d = document.getElementById('td' + j);
+                        d.value = text[j] || '';
+                        d.classList.toggle('filled', !!d.value);
+                    }
+                    if (text.length === 6) submitTOTPCode();
+                });
+            }
+        });
+
+        async function submitTOTPCode() {
+            if (!totpPendingUser) return;
+            const code = getTOTPDigits();
+            if (code.length !== 6) return;
+
+            const btn = document.getElementById('totpVerifyBtn');
+            btn.disabled = true;
+            btn.textContent = 'Verifying...';
+            document.getElementById('totpError').classList.add('hidden');
+
+            // Use the secret already stored in the pending user object (set during TOTP check).
+            // Fall back to DB fetch only if it's somehow absent.
+            let totpSecret = totpPendingUser.totp_secret;
+            if (!totpSecret) {
+                const info = await fetchUserTOTPInfo(totpPendingUser.id);
+                totpSecret = info.totp_secret;
+            }
+            const valid = totpSecret ? await verifyTOTPCode(totpSecret, code) : false;
+
+            if (valid) {
+                clearInterval(totpTimerInterval);
+                showToast('✅ Login successful! Redirecting...', 'success');
+                resetLoginAttempts();
+                if (totpRememberMe) {
+                    localStorage.setItem('currentUser', JSON.stringify(totpPendingUser));
+                } else {
+                    sessionStorage.setItem('currentUser', JSON.stringify(totpPendingUser));
+                }
+                logActivity('Login', `User logged in with 2FA: ${totpPendingUser.username}`);
+                if (typeof window.logSecurity === 'function') {
+                    const authM = totpPendingUser.role === 'admin' ? 'Password' : 'Google Auth';
+                    window.logSecurity('Login Success', authM, 'info', 'Login successful.', totpPendingUser.username);
+                }
+
+                try {
+                    const _logKey = 'barangay_local_security_log';
+                    const _localLogs = JSON.parse(localStorage.getItem(_logKey)) || [];
+                    const _cleaned = _localLogs.filter(l => {
+                        const et = l.event_type || '';
+                        const isFailedEvent = et === 'Login Failed' || et === 'Account Locked';
+                        const isSameUser = (l.target_username || '').toLowerCase() === (totpPendingUser.username || '').toLowerCase();
+                        return !(isFailedEvent && isSameUser);
+                    });
+                    localStorage.setItem(_logKey, JSON.stringify(_cleaned));
+                    if (window.supabase && totpPendingUser.username) {
+                        await window.supabase.from('security_log').delete()
+                            .in('event_type', ['Login Failed', 'Account Locked'])
+                            .eq('target_username', totpPendingUser.username);
+                        if (totpPendingUser.id) {
+                            await window.supabase.from('security_log').delete()
+                                .in('event_type', ['Login Failed', 'Account Locked'])
+                                .eq('user_id', totpPendingUser.id);
+                        }
+                    }
+                } catch(e) { console.warn('Cleanup error:', e); }
+
+                setTimeout(() => redirectToDashboard(), 1000);
+            } else {
+                document.getElementById('totpError').classList.remove('hidden');
+                clearTOTPDigits();
+                btn.disabled = false;
+                btn.textContent = 'Verify Code';
+                document.getElementById('td0').focus();
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            try {
+                if (updateAttemptsWarning()) { showToast('Too many failed attempts. Please wait.', 'error'); return; }
+                const username   = sanitizeInput(document.getElementById('username').value.trim());
+                const password   = document.getElementById('password').value;
+                const rememberMe = document.getElementById('rememberMe').checked;
+                
+                const isAdminAttempt = username.toLowerCase().startsWith('admin');
+                if (isAdminAttempt && !password) { showToast('Please enter your admin password.', 'error'); return; }
+
+                const btn = document.getElementById('loginBtn');
+                btn.disabled = true; btn.textContent = 'Signing in...';
+
+                // ── HARD BYPASS: testuser goes straight to dashboard (no Supabase/TOTP) ──
+                if (username === 'testuser') {
+                    const testSession = {
+                        id: 'test-user-001',
+                        username: 'testuser',
+                        fullName: 'Test User Account',
+                        full_name: 'Test User Account',
+                        role: 'user',
+                        avatar: 'T',
+                        email: 'testuser@barangay.gov',
+                        loginTime: new Date().toISOString(),
+                        totp_bypass: true
+                    };
+                    if (rememberMe) {
+                        localStorage.setItem('currentUser', JSON.stringify(testSession));
+                    } else {
+                        sessionStorage.setItem('currentUser', JSON.stringify(testSession));
+                    }
+                    showToast('✅ Login successful! Redirecting...', 'success');
+                    setTimeout(() => redirectToDashboard(), 1000);
+                    return;
+                }
+                // ── End hard bypass ────────────────────────────────────────────────────
+
+                // Call loginUser to authenticate
+                const result = await loginUser(username, password, rememberMe, { deferSession: true });
+
+                if (result.success) {
+                    resetLoginAttempts();
+                    btn.disabled = false; btn.textContent = 'Sign In';
+
+                    const isAdmin = result.user.role === 'admin';
+
+                    // ── BYPASS: Special test accounts skip TOTP entirely ──────────
+                    // These 2 accounts are for system testing only and go straight
+                    // to the dashboard. All other accounts still require Google Auth.
+                    const TOTP_BYPASS_ACCOUNTS = ['admintest', 'testuser'];
+                    if (TOTP_BYPASS_ACCOUNTS.includes(result.user.username)) {
+                        if (rememberMe) {
+                            localStorage.setItem('currentUser', JSON.stringify(result.user));
+                        } else {
+                            sessionStorage.setItem('currentUser', JSON.stringify(result.user));
+                        }
+                        showToast('✅ Login successful! Redirecting...', 'success');
+                        setTimeout(() => redirectToDashboard(), 1000);
+                        return;
+                    }
+                    // ── End bypass ────────────────────────────────────────────────
+
+                    // ── TOTP CHECK ───────────────────────────────────────────────
+                    // Always fetch fresh from DB by username (guaranteed correct).
+                    // Never rely on cached/mapped totp_enabled which can be stale or false.
+                    let totpEnabled = false;
+                    let totpSecret  = null;
+                    try {
+                        if (window.supabase) {
+                            const { data: totpRow } = await window.supabase
+                                .from('users')
+                                .select('totp_secret, totp_enabled, id')
+                                .eq('username', result.user.username)
+                                .maybeSingle();
+                            if (totpRow) {
+                                totpEnabled = !!totpRow.totp_enabled;
+                                totpSecret  = totpRow.totp_secret || null;
+                            }
+                        }
+                    } catch(e) {
+                        console.warn('[TOTP] Fresh DB fetch failed, falling back to user object:', e);
+                        totpEnabled = !!result.user.totp_enabled;
+                        totpSecret  = result.user.totp_secret || null;
+                    }
+
+                    if (totpEnabled && totpSecret) {
+                        // Attach secret to user object so submitTOTPCode can use it
+                        result.user.totp_secret  = totpSecret;
+                        result.user.totp_enabled = true;
+                        showTOTPPanel(result.user, rememberMe);
+                        return;
+                    }
+
+                    // ── EVERYONE MUST set up Google Authenticator before accessing the dashboard
+                    if (!totpEnabled) {
+                        // Store session as pending — setup-totp.html will finalize it
+                        sessionStorage.setItem('totp_pending_user', JSON.stringify(result.user));
+                        sessionStorage.setItem('totp_remember_me', rememberMe ? 'true' : 'false');
+                        showToast('Please set up Google Authenticator to continue.', 'success');
+                        setTimeout(() => window.location.href = 'setup-totp.html', 1200);
+                        return;
+                    }
+
+                    // Commit session and redirect (admin path when no TOTP yet)
+                    if (rememberMe) {
+                        localStorage.setItem('currentUser', JSON.stringify(result.user));
+                    } else {
+                        sessionStorage.setItem('currentUser', JSON.stringify(result.user));
+                    }
+                    // Log the successful login event (deferSession skips this inside loginUser)
+                    const _lType = (result.user.role === 'admin' || result.user.role === 'Admin') ? 'Admin Login' : 'User Login';
+                    const _authMethod = isAdmin ? 'Password' : 'Google Auth';
+                    const _knownIps = JSON.parse(localStorage.getItem('known_ips_' + result.user.username)) || [];
+                    const _curIP = typeof _cachedDeviceIP !== 'undefined' ? _cachedDeviceIP : 'Unavailable';
+                    if (_curIP !== 'Unavailable' && !_knownIps.includes(_curIP)) {
+                        _knownIps.push(_curIP);
+                        localStorage.setItem('known_ips_' + result.user.username, JSON.stringify(_knownIps));
+                        if (_knownIps.length === 1) {
+                            window.logSecurity('Login Success', _authMethod, 'info', `Login successful.`, result.user.username);
+                        } else {
+                            window.logSecurity('Suspicious Login Activity', _authMethod, 'warning', `Login from new IP (${_curIP}). Previous sessions used a different location.`, result.user.username);
+                        }
+                    } else {
+                        window.logSecurity('Login Success', _authMethod, 'info', `Login successful.`, result.user.username);
+                    }
+
+                    // ── CLEANUP: Remove any Login Failed / Account Locked records for this
+                    //    user from the current session — if they got in, failed attempts don't matter
+                    try {
+                        const _logKey = 'barangay_local_security_log';
+                        const _localLogs = JSON.parse(localStorage.getItem(_logKey)) || [];
+                        const _cleaned = _localLogs.filter(l => {
+                            const et = l.event_type || '';
+                            const isFailedEvent = et === 'Login Failed' || et === 'Account Locked';
+                            const isSameUser = (l.target_username || '').toLowerCase() === (result.user.username || '').toLowerCase();
+                            return !(isFailedEvent && isSameUser);
+                        });
+                        localStorage.setItem(_logKey, JSON.stringify(_cleaned));
+                        // Also delete from Supabase
+                        if (window.supabase && result.user.username) {
+                            await window.supabase.from('security_log')
+                                .delete()
+                                .in('event_type', ['Login Failed', 'Account Locked'])
+                                .eq('target_username', result.user.username);
+                                
+                            if (result.user.id) {
+                                await window.supabase.from('security_log')
+                                    .delete()
+                                    .in('event_type', ['Login Failed', 'Account Locked'])
+                                    .eq('user_id', result.user.id);
+                            }
+                        }
+                    } catch(e) { console.warn('Cleanup failed attempts log error:', e); }
+
+                    showToast('Login successful! Redirecting...', 'success');
+                    setTimeout(() => redirectToDashboard(), 1000);
+                } else {
+                    btn.disabled = false; btn.textContent = 'Sign In';
+                    recordFailedAttempt(username);
+                    if (typeof logActivity === 'function') {
+                        logActivity('Failed Login', `Failed login attempt for username: ${username}`, 'warning');
+                    }
+                    showToast(result.message, 'error');
+                }
+            } catch (err) {
+                alert("Login Error: " + err.message + "\n" + err.stack);
+                console.error(err);
+                const btn = document.getElementById('loginBtn');
+                btn.disabled = false; btn.textContent = 'Sign In';
+            }
+        });
+
+        function togglePassword(fieldId, btn) {
+            const input   = document.getElementById(fieldId);
+            const eyeOpen = btn.querySelector('.icon-eye');
+            const eyeOff  = btn.querySelector('.icon-eye-off');
+            const show    = input.type === 'password';
+            input.type             = show ? 'text' : 'password';
+            eyeOpen.style.display  = show ? 'none' : '';
+            eyeOff.style.display   = show ? '' : 'none';
+        }
+    </script>
+</body>
+</html>

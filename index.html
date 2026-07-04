@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barangay Sta. Lucia - Community Services Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Source+Sans+Pro:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { font-family: 'Source Sans Pro', 'Inter', sans-serif; background: #fff; color: #1a2540; }
+
+        /* NAV */
+        nav {
+            background: #0f1f3d;
+            border-bottom: 3px solid #f5a623;
+            padding: 0 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.25);
+        }
+
+        .nav-inner {
+            width: 100%; max-width: 100%; padding: 0; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between; height: 70px;
+        }
+
+        .nav-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+
+        .nav-brand img {
+            width: 46px; height: 46px; border-radius: 12px;
+            border: 2px solid rgba(245,166,35,0.5); object-fit: cover;
+        }
+
+        .nav-brand-text h1 { font-size: 17px; font-weight: 700; color: #ffffff; }
+        .nav-brand-text span { font-size: 11px; color: #f5a623; font-weight: 600; letter-spacing: 0.5px; }
+
+        .nav-links { display: flex; gap: 10px; }
+        .mobile-menu-btn { display: none; }
+
+        .btn-nav-outline {
+            padding: 9px 24px; border-radius: 10px;
+            border: 2px solid #f5a623; color: #f5a623;
+            background: transparent; text-decoration: none;
+            font-size: 14px; font-weight: 700; transition: all 0.2s;
+        }
+        .btn-nav-outline:hover { background: #f5a623; color: #0f1f3d; }
+
+        .btn-nav-fill {
+            padding: 9px 24px; border-radius: 10px;
+            background: #f5a623; color: #0f1f3d;
+            text-decoration: none; font-size: 14px; font-weight: 700;
+            box-shadow: 0 2px 10px rgba(245,166,35,0.3); transition: all 0.2s;
+        }
+        .btn-nav-fill:hover { background: #e09610; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(245,166,35,0.4); }
+
+        .btn-nav-admin {
+            padding: 9px 24px; border-radius: 10px;
+            background: rgba(255,255,255,0.1); color: #fff;
+            text-decoration: none; font-size: 14px; font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.2); transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .btn-nav-admin:hover { background: rgba(255,255,255,0.2); transform: translateY(-1px); }
+
+        /* HERO */
+        .hero {
+            background-color: #0f1f3d;
+            background-image: linear-gradient(rgba(10,20,50,0.80), rgba(10,20,50,0.80)), url('barangay%20hall.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            padding: 80px 48px 70px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::after {
+            content: 'BARANGAY STA. LUCIA';
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(40px,8vw,90px); font-weight: 900;
+            color: rgba(245,166,35,0.04); white-space: nowrap;
+            pointer-events: none; letter-spacing: 6px; z-index: 0;
+        }
+
+        .hero-inner {
+            width: 100%; max-width: 100%; padding: 0 20px; margin: 0 auto;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+            position: relative; z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.4);
+            border-radius: 50px; padding: 6px 16px;
+            font-size: 13px; font-weight: 600; color: #f5a623;
+            margin-bottom: 22px;
+        }
+
+        .badge-dot {
+            width: 8px; height: 8px; border-radius: 50%; background: #f5a623; animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+        .hero-text h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(36px, 5vw, 56px); font-weight: 800; line-height: 1.12;
+            color: #ffffff; margin-bottom: 18px;
+        }
+        .hero-text h1 span { color: #f5a623; }
+
+        .hero-text p { font-size: 17px; color: rgba(255,255,255,0.7); line-height: 1.7; margin-bottom: 32px; max-width: 480px; }
+
+        .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; }
+
+        .btn-hero-primary {
+            padding: 14px 32px; border-radius: 12px;
+            background: #f5a623; color: #0f1f3d;
+            font-size: 16px; font-weight: 700; text-decoration: none;
+            box-shadow: 0 4px 20px rgba(245,166,35,0.4); transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-hero-primary:hover { background: #e09610; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(245,166,35,0.5); }
+
+        .btn-hero-secondary {
+            padding: 14px 32px; border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.3); color: #fff;
+            font-size: 16px; font-weight: 600; text-decoration: none;
+            background: transparent; transition: all 0.2s;
+        }
+        .btn-hero-secondary:hover { background: rgba(255,255,255,0.08); transform: translateY(-2px); }
+
+        /* Hero Cards */
+        .hero-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+        .hero-card {
+            background: rgba(255,255,255,0.06);
+            border-radius: 18px; padding: 24px 20px; text-align: center;
+            border: 1.5px solid rgba(245,166,35,0.2);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            transition: all 0.25s; cursor: default;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px;
+            backdrop-filter: blur(4px);
+        }
+        .hero-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 28px rgba(0,0,0,0.3);
+            border-color: rgba(245,166,35,0.5);
+            background: rgba(255,255,255,0.1);
+        }
+        .hero-card-icon { font-size: 36px; margin-bottom: 10px; display: block; text-align: center; width: 100%; color: #fff; }
+        .hero-card-icon i { font-size: 36px; color: #fff; }
+        .hero-card p { font-size: 13px; font-weight: 700; color: #ffffff; text-align: center; width: 100%; margin: 0; }
+
+        /* SECTIONS */
+        section { padding: 80px 48px; }
+
+        .section-inner { width: 100%; max-width: 100%; padding: 0 20px; margin: 0 auto; }
+
+        .section-label {
+            text-align: center; font-size: 12px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 2.5px;
+            color: #f5a623; margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            text-align: center; font-size: clamp(28px, 4vw, 42px); font-weight: 800;
+            color: #0f1f3d; margin-bottom: 14px; line-height: 1.2;
+        }
+
+        .section-sub { text-align: center; font-size: 16px; color: #6b7280; line-height: 1.7; max-width: 560px; margin: 0 auto 56px; }
+
+        /* SERVICES GRID */
+        .services-bg { background: #f4f6f9; }
+
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
+
+        .service-card {
+            background: #fff; border-radius: 16px; padding: 32px 26px;
+            border: 1.5px solid #e2e8f0; transition: all 0.3s;
+            position: relative; overflow: hidden; text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .service-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: #f5a623; opacity: 0; transition: opacity 0.3s;
+        }
+        .service-card:hover { border-color: #f5a623; box-shadow: 0 12px 40px rgba(245,166,35,0.12); transform: translateY(-5px); }
+        .service-card:hover::before { opacity: 1; }
+
+        .service-icon {
+            width: 60px; height: 60px; border-radius: 50%;
+            background: #0f1f3d; border: none;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; margin-bottom: 20px; margin-left: auto; margin-right: auto;
+        }
+
+        .service-card h3 { font-size: 18px; font-weight: 700; color: #0f1f3d; margin-bottom: 10px; }
+        .service-card p { font-size: 14px; color: #6b7280; line-height: 1.7; }
+
+        /* STEPS */
+        .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+
+        .step-card { text-align: center; padding: 12px; }
+
+        .step-num {
+            width: 68px; height: 68px; border-radius: 50%;
+            background: linear-gradient(135deg, #0f1f3d, #1a3a6b);
+            color: #f5a623; display: flex; align-items: center; justify-content: center;
+            font-size: 26px; font-weight: 800; margin: 0 auto 20px;
+            box-shadow: 0 6px 20px rgba(15,31,61,0.3);
+        }
+
+        .step-card h3 { font-size: 18px; font-weight: 700; color: #0f1f3d; margin-bottom: 10px; }
+        .step-card p { font-size: 14px; color: #6b7280; line-height: 1.7; }
+
+        /* CTA */
+        .cta-section {
+            background: linear-gradient(135deg, #0f1f3d, #1a3a6b);
+            padding: 80px 48px; text-align: center;
+            position: relative; overflow: hidden;
+        }
+        .cta-section::before {
+            content: ''; position: absolute; inset: 0;
+            background-image:
+                linear-gradient(45deg, rgba(245,166,35,0.05) 25%, transparent 25%),
+                linear-gradient(-45deg, rgba(245,166,35,0.05) 25%, transparent 25%);
+            background-size: 60px 60px; pointer-events: none;
+        }
+        .cta-section h2 { font-family:'Playfair Display',serif; font-size: clamp(28px, 4vw, 44px); font-weight: 800; color: #fff; margin-bottom: 16px; position:relative; }
+        .cta-section p { font-size: 17px; color: rgba(255,255,255,0.7); margin-bottom: 36px; position:relative; }
+
+        .cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; position:relative; }
+
+        .btn-cta-white {
+            padding: 14px 32px; border-radius: 12px;
+            background: #f5a623; color: #0f1f3d;
+            font-size: 15px; font-weight: 700; text-decoration: none;
+            box-shadow: 0 4px 16px rgba(245,166,35,0.4); transition: all 0.2s;
+        }
+        .btn-cta-white:hover { background: #e09610; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245,166,35,0.5); }
+
+        .btn-cta-outline {
+            padding: 14px 32px; border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.4); color: #fff;
+            font-size: 15px; font-weight: 600; text-decoration: none;
+            transition: all 0.2s; background: transparent;
+        }
+        .btn-cta-outline:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+
+        /* FOOTER */
+        footer {
+            background: #0f1f3d;
+            border-top: 3px solid #f5a623;
+            padding: 40px 48px;
+        }
+
+        .footer-inner {
+            width: 100%; max-width: 100%; padding: 0 20px; margin: 0 auto;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px;
+        }
+
+        .footer-brand { display: flex; align-items: center; gap: 12px; }
+        .footer-brand img { width: 40px; height: 40px; border-radius: 10px; border: 1.5px solid rgba(245,166,35,0.4); object-fit: cover; }
+        .footer-brand div p:first-child { font-size: 14px; font-weight: 700; color: #fff; }
+        .footer-brand div p:last-child { font-size: 12px; color: rgba(255,255,255,0.45); }
+
+        .footer-contact p { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.9; text-align: right; }
+        .footer-contact p:first-child { font-weight: 700; color: #f5a623; margin-bottom: 4px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+
+        .footer-bottom {
+            width: 100%; max-width: 100%; padding: 20px 20px 0; margin: 24px auto 0;
+            border-top: 1px solid rgba(255,255,255,0.1); text-align: center;
+        }
+        .footer-bottom p { font-size: 13px; color: rgba(255,255,255,0.35); }
+
+        @media (max-width: 900px) {
+            nav { padding: 0 16px; }
+            .nav-inner { height: 60px; flex-wrap: nowrap; justify-content: space-between; }
+            .nav-brand img { width: 34px; height: 34px; }
+            .nav-brand-text h1 { font-size: 14px; }
+            .nav-brand-text span { display: none; }
+
+            .nav-links {
+                display: none; position: absolute; top: 63px; left: 0; right: 0;
+                background: #0f1f3d; padding: 12px 16px 16px;
+                border-bottom: 2px solid #f5a623;
+                box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+                z-index: 99; flex-direction: column; gap: 8px;
+            }
+            .nav-links.open { display: flex; }
+
+            .btn-nav-outline, .btn-nav-fill { width: 100%; text-align: center; padding: 12px 16px; border-radius: 10px; display: block; }
+
+            .mobile-menu-btn {
+                display: flex; align-items: center; justify-content: center;
+                background: none; border: 1.5px solid rgba(245,166,35,0.4);
+                border-radius: 8px; font-size: 20px; cursor: pointer; color: #f5a623;
+                width: 38px; height: 38px; padding: 0;
+            }
+
+            .hero { padding: 36px 16px 40px; text-align: center; }
+            .hero-inner { grid-template-columns: 1fr; gap: 28px; text-align: center; }
+            .hero-badge { margin-bottom: 14px; justify-content: center; }
+            .hero-text { text-align: center; }
+            .hero-text h1 { font-size: 28px !important; line-height: 1.25; }
+            .hero-text p { font-size: 15px; margin-bottom: 20px; text-align: center; max-width: 100%; }
+            .hero-cta { flex-direction: column; gap: 10px; align-items: stretch; }
+            .hero-cta a { width: 100%; text-align: center; padding: 16px 24px; justify-content: center; }
+            .hero-cards { grid-template-columns: repeat(2, 1fr); gap: 10px; max-width: 360px; margin: 0 auto; }
+            .hero-card { padding: 20px 12px; }
+            .hero-card-icon { font-size: 28px; }
+            .hero-card p { font-size: 12px; }
+
+            section { padding: 40px 16px; }
+            .section-title { font-size: 22px; margin-bottom: 20px; }
+            .section-sub { font-size: 14px; margin-bottom: 36px; }
+            .features-grid, .steps-grid, .services-grid { grid-template-columns: 1fr; gap: 14px; }
+            .feature-card, .step-card, .service-card { padding: 20px; }
+
+            .cta-section { padding: 40px 16px; }
+            .cta-section h2 { font-size: 24px; }
+            .cta-btns { flex-direction: column; gap: 12px; align-items: stretch; max-width: 320px; margin: 0 auto; }
+            .btn-cta-white, .btn-cta-outline { width: 100%; text-align: center; padding: 14px; }
+
+            footer { padding: 24px 16px; }
+            .footer-inner { flex-direction: column; align-items: flex-start; gap: 16px; }
+            .footer-contact p { text-align: left; }
+        }
+
+        @media (max-width: 480px) {
+            .hero-text h1 { font-size: 24px !important; }
+            .hero-badge { font-size: 12px; padding: 5px 12px; }
+            .btn-hero-primary, .btn-hero-secondary { padding: 14px 20px; font-size: 15px; }
+            .section-title { font-size: 20px; }
+        }
+    </style>
+    <link rel="icon" type="image/jpeg" href="barangay-sun-logo.jpg">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-inner">
+            <a href="index.html" class="nav-brand">
+                <img src="barangay-sun-logo.jpg" alt="Barangay Logo">
+                <div class="nav-brand-text">
+                    <h1>Barangay Sta. Lucia</h1>
+                    <span>Community Services Portal</span>
+                </div>
+            </a>
+            <div class="nav-links">
+                <a href="login.html?role=resident" class="btn-nav-outline">Resident Login</a>
+                <a href="login.html?role=admin" class="btn-nav-admin">Admin Login</a>
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-inner">
+            <div class="hero-text">
+                <div class="hero-badge">
+                    <div class="badge-dot"></div>
+                    Serving Sta. Lucia Residents
+                </div>
+                <h1>Your Community<br>Services, <span>Online</span></h1>
+                <p spellcheck="false" data-gramm="false">Access barangay services from home to borrow equipment, book
+                    the court, submit concerns, and stay
+                    updated with community events.</p>
+                <div class="hero-cta">
+                    <a href="login.html?role=resident" class="btn-hero-primary">Login to Portal</a>
+                </div>
+            </div>
+            <div class="hero-cards">
+                <div class="hero-card">
+                    <span class="hero-card-icon"><i class="bi bi-box-seam"></i></span>
+                    <p>Borrow Equipment</p>
+                </div>
+                <div class="hero-card">
+                    <span class="hero-card-icon"><i class="bi bi-chat-left-text"></i></span>
+                    <p>Submit Concerns</p>
+                </div>
+                <div class="hero-card">
+                    <span class="hero-card-icon"><i class="bi bi-building"></i></span>
+                    <p>Facility Reservation</p>
+                </div>
+                <div class="hero-card">
+                    <span class="hero-card-icon"><i class="bi bi-calendar-event"></i></span>
+                    <p>View Events</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Section (#20) -->
+    <section style="padding:72px 48px;background:#f8fafc;">
+        <div style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;">
+            <div>
+                <p style="font-size:11px;font-weight:700;letter-spacing:0.15em;color:#16a34a;text-transform:uppercase;margin:0 0 10px;">About the Barangay</p>
+                <h2 style="font-size:36px;font-weight:800;color:#0f1f3d;margin:0 0 18px;line-height:1.15;">Serving the community of Sta. Lucia</h2>
+                <p style="font-size:15px;color:#475569;line-height:1.75;margin:0 0 18px;">Barangay Sta. Lucia is located in Novaliches, Quezon City, one of the most progressive communities in District 5. We are dedicated to providing efficient, transparent, and accessible public services to all our residents.</p>
+                <p style="font-size:15px;color:#475569;line-height:1.75;margin:0 0 24px;">This digital portal is our commitment to modernizing how we serve you — bringing barangay services online, reducing wait times, and ensuring every resident has a voice.</p>
+                <div style="display:flex;gap:28px;flex-wrap:wrap;">
+                    <div style="text-align:center;"><div style="font-size:32px;font-weight:800;color:#0f1f3d;">Free</div><div style="font-size:12px;color:#64748b;font-weight:600;">Register now</div></div>
+                    <div style="width:1px;background:#e2e8f0;"></div>
+                    <div style="text-align:center;"><div style="font-size:32px;font-weight:800;color:#0f1f3d;">24/7</div><div style="font-size:12px;color:#64748b;font-weight:600;">Online access</div></div>
+                    <div style="width:1px;background:#e2e8f0;"></div>
+                    <div style="text-align:center;"><div style="font-size:32px;font-weight:800;color:#0f1f3d;">7</div><div style="font-size:12px;color:#64748b;font-weight:600;">Sitios served</div></div>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:22px 18px;box-shadow:0 2px 12px rgba(0,0,0,0.05);"><div style="font-size:26px;margin-bottom:10px;">🏛️</div><h4 style="font-size:13px;font-weight:700;color:#0f1f3d;margin:0 0 5px;">Good governance</h4><p style="font-size:12px;color:#64748b;margin:0;line-height:1.5;">Transparent operations and accountable public service.</p></div>
+                <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:22px 18px;box-shadow:0 2px 12px rgba(0,0,0,0.05);"><div style="font-size:26px;margin-bottom:10px;">🤝</div><h4 style="font-size:13px;font-weight:700;color:#0f1f3d;margin:0 0 5px;">Community first</h4><p style="font-size:12px;color:#64748b;margin:0;line-height:1.5;">Every service is designed around your needs as a resident.</p></div>
+                <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:22px 18px;box-shadow:0 2px 12px rgba(0,0,0,0.05);"><div style="font-size:26px;margin-bottom:10px;">💻</div><h4 style="font-size:13px;font-weight:700;color:#0f1f3d;margin:0 0 5px;">Digital innovation</h4><p style="font-size:12px;color:#64748b;margin:0;line-height:1.5;">Bringing e-government services to every household in Sta. Lucia.</p></div>
+                <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:22px 18px;box-shadow:0 2px 12px rgba(0,0,0,0.05);"><div style="font-size:26px;margin-bottom:10px;">🌱</div><h4 style="font-size:13px;font-weight:700;color:#0f1f3d;margin:0 0 5px;">Sustainability</h4><p style="font-size:12px;color:#64748b;margin:0;line-height:1.5;">Building a cleaner, safer, and greener barangay together.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services-bg">
+        <div class="section-inner">
+            <p class="section-label">Our Services</p>
+            <h2 class="section-title">Everything in One Place</h2>
+            <p class="section-sub">All the barangay services you need, available online 24/7 for residents of Sta.
+                Lucia.</p>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">🪑</div>
+                    <h3>Equipment Rental</h3>
+                    <p>Borrow chairs, tables, tents, sound systems, and more for your events. Track requests online with
+                        ease.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📋</div>
+                    <h3>Submit Concerns</h3>
+                    <p>Report infrastructure issues, sanitation problems, or security concerns directly to barangay
+                        officials.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🏀</div>
+                    <h3>Court Scheduling</h3>
+                    <p>Book the basketball court for tournaments, practice sessions, or other community activities.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📅</div>
+                    <h3>Community Events</h3>
+                    <p>Stay updated on upcoming barangay events, activities, and official announcements.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section>
+        <div class="section-inner">
+            <p class="section-label">How It Works</p>
+            <h2 class="section-title">Get Started in 3 Easy Steps</h2>
+            <p class="section-sub">Getting access to all barangay services online is quick and simple.</p>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-num">1</div>
+                    <h3>Get Your Barangay ID</h3>
+                    <p>Your Barangay ID Number is assigned by the admin. No registration needed your account is created for you.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">2</div>
+                    <h3>Login with Your ID</h3>
+                    <p>Simply enter your Barangay ID Number on the Resident Login page to instantly access your personal dashboard.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">3</div>
+                    <h3>Use Barangay Services</h3>
+                    <p>Borrow equipment, submit concerns, reserve the court, and stay updated with community events in real-time.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <img src="barangay-sun-logo.jpg" alt="Barangay Logo">
+                <div>
+                    <p>Barangay Sta. Lucia</p>
+                    <p>Community Services Portal</p>
+                </div>
+            </div>
+            <div class="footer-contact">
+                <p>Contact Information</p>
+                <p>📍 Sta. Lucia Ave., Novaliches, Quezon City</p>
+                <p>📞 8-2919-943 &nbsp;|&nbsp; 0919-0755101</p>
+                <p>✉️ barangaysta.luciadist5qc@gmail.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 Barangay Sta. Lucia. All rights reserved. | <a href="privacy-policy.html" style="color:#ffffff;text-decoration:none;opacity:0.8;font-weight:600;">Privacy Policy</a></p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script>
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.classList.toggle('open');
+        }
+        // Close menu when clicking outside
+        document.addEventListener('click', function (e) {
+            const nav = document.querySelector('nav');
+            if (!nav.contains(e.target)) {
+                document.querySelector('.nav-links').classList.remove('open');
+            }
+        });
+    </script>
+    <script src="js/crypto-utils.js"></script>
+        <script src="js/app.js"></script>
+</body>
+
+</html>

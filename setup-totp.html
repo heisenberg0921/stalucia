@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Google Authenticator - Barangay Sta. Lucia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="barangay-sun-logo.jpg">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; font-family: 'Inter', sans-serif; }
+        body { display: flex; align-items: center; justify-content: center; min-height: 100vh;
+            background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #059669 100%); padding: 24px; }
+
+        .card {
+            background: #fff; border-radius: 24px; padding: 40px;
+            width: 100%; max-width: 520px;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.25);
+            animation: slideUp 0.4s ease-out;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .logo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+        .logo-img  { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid #d1fae5; }
+        .logo-title { font-size: 13px; font-weight: 700; color: #064e3b; }
+        .logo-sub   { font-size: 11px; color: #6b7280; }
+
+        .badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;
+            border-radius: 100px; padding: 5px 12px; font-size: 12px; font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        h1 { font-size: 22px; font-weight: 800; color: #064e3b; margin-bottom: 6px; }
+        .subtitle { font-size: 14px; color: #6b7280; margin-bottom: 28px; line-height: 1.5; }
+
+        /* Steps */
+        .steps { display: flex; gap: 8px; align-items: center; margin-bottom: 28px; }
+        .step-dot {
+            width: 32px; height: 32px; border-radius: 50%; font-size: 13px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s;
+        }
+        .step-dot.active   { background: #059669; color: #fff; box-shadow: 0 0 0 4px rgba(5,150,105,0.2); }
+        .step-dot.done     { background: #d1fae5; color: #059669; }
+        .step-dot.inactive { background: #f3f4f6; color: #9ca3af; }
+        .step-line { flex: 1; height: 2px; background: #e5e7eb; border-radius: 2px; }
+        .step-line.done { background: #059669; }
+
+        /* QR section */
+        .qr-wrap {
+            display: flex; flex-direction: column; align-items: center;
+            background: #f8fafc; border: 2px dashed #d1fae5; border-radius: 16px;
+            padding: 24px; margin-bottom: 20px;
+        }
+        #qrCanvas { border-radius: 10px; margin-bottom: 10px; }
+        .qr-loading { color: #9ca3af; font-size: 13px; }
+
+        .secret-box {
+            background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 10px;
+            padding: 12px 16px; margin-bottom: 20px;
+            display: flex; align-items: center; justify-content: space-between; gap: 8px;
+        }
+        .secret-label { font-size: 11px; font-weight: 700; color: #065f46; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+        .secret-value { font-family: monospace; font-size: 14px; color: #1f2937; letter-spacing: 0.1em; word-break: break-all; }
+        .copy-btn {
+            flex-shrink: 0; background: #059669; color: #fff; border: none; border-radius: 8px;
+            padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s;
+        }
+        .copy-btn:hover { background: #047857; }
+
+        /* Instruction steps */
+        .instructions { margin-bottom: 24px; }
+        .instr-title { font-size: 13px; font-weight: 700; color: #374151; margin-bottom: 10px; }
+        .instr-list  { display: flex; flex-direction: column; gap: 8px; }
+        .instr-item  { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: #6b7280; line-height: 1.5; }
+        .instr-num   { flex-shrink: 0; width: 22px; height: 22px; background: #059669; color: #fff; border-radius: 50%;
+                        font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+
+        /* Code input */
+        .code-wrap { display: flex; gap: 8px; justify-content: center; margin: 20px 0; }
+        .code-digit {
+            width: 48px; height: 56px; border: 2px solid #e5e7eb; border-radius: 12px;
+            font-size: 22px; font-weight: 700; text-align: center; color: #1f2937;
+            font-family: monospace; outline: none; transition: all 0.2s;
+        }
+        .code-digit:focus { border-color: #059669; box-shadow: 0 0 0 4px rgba(5,150,105,0.12); }
+        .code-digit.filled { border-color: #10b981; background: #f0fdf4; }
+
+        .verify-label { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 4px; text-align: center; }
+        .verify-hint  { font-size: 12px; color: #9ca3af; text-align: center; margin-bottom: 4px; }
+
+        /* Buttons */
+        .btn-main {
+            width: 100%; padding: 14px; border: none; border-radius: 12px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff; font-size: 15px; font-weight: 700;
+            cursor: pointer; transition: all 0.25s;
+            box-shadow: 0 4px 20px rgba(16,185,129,0.35);
+        }
+        .btn-main:hover:not(:disabled) { background: linear-gradient(135deg, #059669, #047857); transform: translateY(-2px); }
+        .btn-main:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-secondary {
+            width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 12px;
+            background: transparent; color: #6b7280; font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; margin-top: 10px;
+        }
+        .btn-secondary:hover { border-color: #9ca3af; color: #374151; }
+
+        /* Error / Success */
+        .msg-box { padding: 12px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; margin-bottom: 16px; display: none; }
+        .msg-error   { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+        .msg-success { background: #f0fdf4; border: 1px solid #a7f3d0; color: #065f46; }
+
+        /* Success screen */
+        .success-screen { text-align: center; padding: 20px 0; display: none; }
+        .success-icon { font-size: 56px; margin-bottom: 16px; animation: pop 0.5s ease-out; }
+        @keyframes pop { 0% { transform: scale(0); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        .success-title { font-size: 22px; font-weight: 800; color: #064e3b; margin-bottom: 8px; }
+        .success-text  { font-size: 14px; color: #6b7280; margin-bottom: 24px; line-height: 1.5; }
+
+        /* Timer ring */
+        .timer-wrap { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
+        .timer-ring { position: relative; width: 36px; height: 36px; }
+        .timer-ring svg { transform: rotate(-90deg); }
+        .timer-ring circle { fill: none; stroke-width: 3; }
+        .timer-ring .track { stroke: #e5e7eb; }
+        .timer-ring .fill  { stroke: #059669; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+        .timer-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+                     font-size: 11px; font-weight: 700; color: #059669; }
+        .timer-label { font-size: 12px; color: #9ca3af; }
+
+        @media (max-width: 560px) {
+            .card { padding: 24px 20px; }
+            .code-digit { width: 40px; height: 50px; font-size: 18px; }
+            h1 { font-size: 19px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo-row">
+            <img src="barangay-sun-logo.jpg" alt="Logo" class="logo-img">
+            <div>
+                <div class="logo-title">Barangay Sta. Lucia</div>
+                <div class="logo-sub">Community Services Portal</div>
+            </div>
+        </div>
+
+        <div class="badge">🔐 Two-Factor Authentication Setup</div>
+        <h1>Setup Google Authenticator</h1>
+        <p class="subtitle">This is a <strong>required security step</strong>. Your account cannot be accessed until Google Authenticator is set up. This only takes a minute.</p>
+
+        <!-- Step Indicator -->
+        <div class="steps">
+            <div class="step-dot active" id="stepDot1">1</div>
+            <div class="step-line" id="stepLine1"></div>
+            <div class="step-dot inactive" id="stepDot2">2</div>
+            <div class="step-line" id="stepLine2"></div>
+            <div class="step-dot inactive" id="stepDot3">✓</div>
+        </div>
+
+        <!-- Step 1: Scan QR Code -->
+        <div id="step1">
+            <div class="instructions">
+                <div class="instr-title">📱 Follow these steps:</div>
+                <div class="instr-list">
+                    <div class="instr-item"><div class="instr-num">1</div> Install <strong>Google Authenticator</strong> from the App Store or Google Play</div>
+                    <div class="instr-item"><div class="instr-num">2</div> Open the app, tap <strong>+</strong> then <strong>"Scan a QR code"</strong></div>
+                    <div class="instr-item"><div class="instr-num">3</div> Point your camera at the QR code below</div>
+                </div>
+            </div>
+
+            <div class="qr-wrap">
+                <canvas id="qrCanvas"></canvas>
+                <div class="qr-loading" id="qrLoading">Generating QR Code...</div>
+            </div>
+
+            <div class="secret-box">
+                <div>
+                    <div class="secret-label">Manual entry key</div>
+                    <div class="secret-value" id="secretDisplay">—</div>
+                </div>
+                <button class="copy-btn" onclick="copySecret()">Copy</button>
+            </div>
+
+            <button class="btn-main" onclick="goToStep2()">I've Scanned the Code →</button>
+        </div>
+
+        <!-- Step 2: Verify Code -->
+        <div id="step2" style="display:none;">
+            <div class="verify-label">Enter the 6-digit code from your app</div>
+            <p class="verify-hint">The code refreshes every 30 seconds</p>
+
+            <!-- Timer ring -->
+            <div class="timer-wrap">
+                <div class="timer-ring">
+                    <svg width="36" height="36" viewBox="0 0 36 36">
+                        <circle class="track" cx="18" cy="18" r="15.9"/>
+                        <circle class="fill" cx="18" cy="18" r="15.9"
+                            stroke-dasharray="100" id="timerFill" stroke-dashoffset="0"/>
+                    </svg>
+                    <div class="timer-num" id="timerNum">30</div>
+                </div>
+                <div class="timer-label">seconds left</div>
+            </div>
+
+            <div class="code-wrap">
+                <input class="code-digit" type="text" inputmode="numeric" maxlength="1" id="d0">
+                <input class="code-digit" type="text" inputmode="numeric" maxlength="1" id="d1">
+                <input class="code-digit" type="text" inputmode="numeric" maxlength="1" id="d2">
+                <input class="code-digit" type="text" inputmode="numeric" maxlength="1" id="d3">
+                <input class="code-digit" type="text" inputmode="numeric" maxlength="1" id="d4">
+                <input class="code-digit" type="text" inputmode="numeric" maxlength="1" id="d5">
+            </div>
+
+            <div class="msg-box msg-error" id="verifyError">Incorrect code. Please try again.</div>
+            <div class="msg-box msg-success" id="verifySuccess">✅ Code verified successfully!</div>
+
+            <button class="btn-main" id="verifyBtn" onclick="verifyCode()">Verify & Enable 2FA</button>
+            <button class="btn-secondary" onclick="backToStep1()">← Back</button>
+        </div>
+
+        <!-- Step 3: Success -->
+        <div class="success-screen" id="step3">
+            <div class="success-icon">🎉</div>
+            <div class="success-title">2FA Enabled!</div>
+            <p class="success-text">Google Authenticator is now active on your account. You'll need your authenticator app every time you log in.</p>
+            <button class="btn-main" id="doneBtn" onclick="finishSetup()">Continue to Dashboard</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/crypto-utils.js"></script>
+        <script src="js/app.js"></script>
+    <script src="js/otpauth.js"></script>
+    <script src="js/totp-handler.js"></script>
+    <script src="js/auth-visuals.js"></script>
+    <script>
+        let currentSecret = '';
+        let pendingUser   = null;
+        let timerInterval = null;
+
+        // ── Auth Guard ───────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check for pending TOTP setup (post-login) or already-logged-in user
+            const pendingRaw = sessionStorage.getItem('totp_pending_user');
+            const currentUser = getCurrentUser();
+
+            if (pendingRaw) {
+                pendingUser = JSON.parse(pendingRaw);
+            } else if (currentUser) {
+                pendingUser = currentUser;
+            } else {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // 2FA setup is now MANDATORY for users redirected from login
+            // The skip button is hidden for all cases — no skipping allowed
+            // (admins set up 2FA voluntarily from admin-settings.html)
+
+            await initSetup();
+            startTimer();
+        });
+
+        // ── Generate Secret & QR Code ────────────────────────────
+        async function initSetup() {
+            currentSecret = await generateTOTPSecretAsync();
+            document.getElementById('secretDisplay').textContent = formatSecret(currentSecret);
+
+            const otpUri = buildOTPAuthURI(pendingUser.username, currentSecret);
+
+            try {
+                const qr = new QRious({
+                    element: document.getElementById('qrCanvas'),
+                    value: otpUri,
+                    size: 200,
+                    level: 'M',
+                    foreground: '#064e3b'
+                });
+                document.getElementById('qrLoading').style.display = 'none';
+            } catch (err) {
+                console.error("QR Auth visuals error:", err);
+                document.getElementById('qrLoading').textContent = "Failed to load visual QR frame. Please use the manual entry key below.";
+                document.getElementById('qrLoading').style.color = "#991b1b";
+            }
+        }
+
+        function formatSecret(s) {
+            // Remove any potential padding for visual cleanliness
+            const clean = s.replace(/=/g, '');
+            return clean.match(/.{1,4}/g).join(' ');
+        }
+
+        function copySecret() {
+            navigator.clipboard.writeText(currentSecret).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = 'Copy', 1500);
+            });
+        }
+
+        // ── Timer ring ───────────────────────────────────────────
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                const now = Math.floor(Date.now() / 1000);
+                const remaining = 30 - (now % 30);
+                const pct = ((30 - remaining) / 30) * 100;
+                document.getElementById('timerNum').textContent = remaining;
+                document.getElementById('timerFill').setAttribute('stroke-dashoffset', pct);
+            }, 1000);
+        }
+
+        // ── Step Navigation ──────────────────────────────────────
+        function goToStep2() {
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
+            setStepState(2);
+            document.getElementById('d0').focus();
+        }
+
+        function backToStep1() {
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step1').style.display = 'block';
+            clearDigits();
+            setStepState(1);
+        }
+
+        function setStepState(active) {
+            [1,2,3].forEach(i => {
+                const dot  = document.getElementById('stepDot' + i);
+                const line = document.getElementById('stepLine' + (i));
+                if (i < active) {
+                    dot.className = 'step-dot done';
+                    dot.textContent = '✓';
+                    if (line) line.className = 'step-line done';
+                } else if (i === active) {
+                    dot.className = 'step-dot active';
+                    dot.textContent = i < 3 ? i : '✓';
+                } else {
+                    dot.className = 'step-dot inactive';
+                    dot.textContent = i < 3 ? i : '✓';
+                }
+            });
+        }
+
+        // ── Digit input handling ─────────────────────────────────
+        document.addEventListener('DOMContentLoaded', () => {
+            for (let i = 0; i < 6; i++) {
+                const el = document.getElementById('d' + i);
+                el.addEventListener('input', function () {
+                    this.value = this.value.replace(/\D/g, '').slice(-1);
+                    this.classList.toggle('filled', !!this.value);
+                    if (this.value && i < 5) document.getElementById('d' + (i + 1)).focus();
+                    if (getDigits().length === 6) verifyCode();
+                });
+                el.addEventListener('keydown', function (e) {
+                    if (e.key === 'Backspace' && !this.value && i > 0) {
+                        document.getElementById('d' + (i - 1)).focus();
+                    }
+                });
+                el.addEventListener('paste', function (e) {
+                    e.preventDefault();
+                    const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+                    for (let j = 0; j < 6; j++) {
+                        const d = document.getElementById('d' + j);
+                        d.value = text[j] || '';
+                        d.classList.toggle('filled', !!d.value);
+                    }
+                    if (text.length === 6) verifyCode();
+                });
+            }
+        });
+
+        function getDigits() { return [0,1,2,3,4,5].map(i => document.getElementById('d' + i).value).join(''); }
+        function clearDigits() {
+            for (let i = 0; i < 6; i++) {
+                document.getElementById('d' + i).value = '';
+                document.getElementById('d' + i).classList.remove('filled');
+            }
+            document.getElementById('verifyError').style.display = 'none';
+            document.getElementById('verifySuccess').style.display = 'none';
+        }
+
+        // ── Verify & Save ────────────────────────────────────────
+        async function verifyCode() {
+            const code = getDigits();
+            if (code.length !== 6) return;
+
+            const btn = document.getElementById('verifyBtn');
+            btn.disabled = true;
+            btn.textContent = 'Verifying...';
+            document.getElementById('verifyError').style.display = 'none';
+            document.getElementById('verifySuccess').style.display = 'none';
+
+            const valid = await verifyTOTPCode(currentSecret, code);
+
+            if (valid) {
+                document.getElementById('verifySuccess').style.display = 'block';
+                // Save to DB
+                await saveTOTPSecretToDB(pendingUser.id, currentSecret);
+                if (typeof logActivity === 'function') {
+                    logActivity('2FA Enabled', `User ${pendingUser.username} enabled Google Authenticator`);
+                }
+                setTimeout(() => showSuccessScreen(), 800);
+            } else {
+                document.getElementById('verifyError').style.display = 'block';
+                clearDigits();
+                btn.disabled = false;
+                btn.textContent = 'Verify & Enable 2FA';
+                document.getElementById('d0').focus();
+            }
+        }
+
+        function showSuccessScreen() {
+            clearInterval(timerInterval);
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step3').style.display = 'block';
+            setStepState(3);
+        }
+
+        async function finishSetup() {
+            // Complete the deferred login session
+            const pendingRaw = sessionStorage.getItem('totp_pending_user');
+            if (pendingRaw) {
+                const user = JSON.parse(pendingRaw);
+                const rememberMe = sessionStorage.getItem('totp_remember_me') === 'true';
+                user.totp_enabled = true;
+                if (rememberMe) {
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                } else {
+                    sessionStorage.setItem('currentUser', JSON.stringify(user));
+                }
+                
+                // Log the first-time login success via Google Auth setup
+                if (typeof window.logSecurity === 'function') {
+                    const authM = user.role === 'admin' ? 'Password' : 'Google Auth';
+                    const _knownIps = JSON.parse(localStorage.getItem('known_ips_' + user.username)) || [];
+                    const _curIP = typeof _cachedDeviceIP !== 'undefined' ? _cachedDeviceIP : 'Unavailable';
+                    if (_curIP !== 'Unavailable' && !_knownIps.includes(_curIP)) {
+                        _knownIps.push(_curIP);
+                        localStorage.setItem('known_ips_' + user.username, JSON.stringify(_knownIps));
+                        if (_knownIps.length === 1) {
+                            window.logSecurity('Login Success', authM, 'info', `Login successful. First login from IP ${_curIP}.`, user.username);
+                        } else {
+                            window.logSecurity('Suspicious Login Activity', authM, 'warning', `Login from new IP (${_curIP}). Previous sessions used a different location.`, user.username);
+                        }
+                    } else {
+                        window.logSecurity('Login Success', authM, 'info', 'Login successful.', user.username);
+                    }
+                }
+
+                // Cleanup failed attempts
+                try {
+                    const _logKey = 'barangay_local_security_log';
+                    const _localLogs = JSON.parse(localStorage.getItem(_logKey)) || [];
+                    const _cleaned = _localLogs.filter(l => {
+                        const et = l.event_type || '';
+                        const isFailedEvent = et === 'Login Failed' || et === 'Account Locked';
+                        const isSameUser = (l.target_username || '').toLowerCase() === (user.username || '').toLowerCase();
+                        return !(isFailedEvent && isSameUser);
+                    });
+                    localStorage.setItem(_logKey, JSON.stringify(_cleaned));
+                    if (window.supabase && user.username) {
+                        await window.supabase.from('security_log').delete()
+                            .in('event_type', ['Login Failed', 'Account Locked'])
+                            .eq('target_username', user.username);
+                        if (user.id) {
+                            await window.supabase.from('security_log').delete()
+                                .in('event_type', ['Login Failed', 'Account Locked'])
+                                .eq('user_id', user.id);
+                        }
+                    }
+                } catch(e) { console.warn('Cleanup error:', e); }
+
+                sessionStorage.removeItem('totp_pending_user');
+                sessionStorage.removeItem('totp_remember_me');
+            }
+            // Redirect based on role
+            if (pendingUser && pendingUser.role === 'admin') {
+                window.location.href = 'admin.html';
+            } else {
+                window.location.href = 'user-dashboard.html';
+            }
+        }
+
+        function skipSetup() {
+            // Only for optional (non-admin) users — save session as-is
+            const pendingRaw = sessionStorage.getItem('totp_pending_user');
+            if (pendingRaw) {
+                const user = JSON.parse(pendingRaw);
+                const rememberMe = sessionStorage.getItem('totp_remember_me') === 'true';
+                if (rememberMe) {
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                } else {
+                    sessionStorage.setItem('currentUser', JSON.stringify(user));
+                }
+                sessionStorage.removeItem('totp_pending_user');
+                sessionStorage.removeItem('totp_remember_me');
+            }
+            window.location.href = 'user-dashboard.html';
+        }
+    </script>
+</body>
+</html>

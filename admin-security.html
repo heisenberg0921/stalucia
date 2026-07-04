@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Center - Barangay Sta. Lucia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="barangay-sun-logo.jpg">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #f8fafc; overflow-x: hidden; }
+        
+        .header { 
+            background: #1e293b; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #334155;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header h1 { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; color: #fff; }
+        .back-btn { 
+            background: #334155; color: #f8fafc; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; 
+            cursor: pointer; text-decoration: none; font-size: 14px; transition: 0.2s;
+        }
+        .back-btn:hover { background: #475569; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+
+        /* Status Banner */
+        .status-banner { 
+            background: linear-gradient(135deg, #065f46, #047857); padding: 30px; border-radius: 16px; margin-bottom: 30px;
+            display: flex; justify-content: space-between; align-items: center; border: 1px solid #10b981;
+            box-shadow: 0 10px 25px rgba(4, 120, 87, 0.2);
+        }
+        .status-text h2 { font-size: 24px; font-weight: 800; color: #dcfce7; margin-bottom: 8px; }
+        .status-text p { color: #a7f3d0; font-size: 15px; }
+        .badge { background: #10b981; color: #fff; padding: 6px 16px; border-radius: 50px; font-weight: 700; font-size: 12px; letter-spacing: 1px; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px; margin-bottom: 40px; }
+
+        /* Card styles */
+        .card { 
+            background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 24px; 
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .card-header h3 { font-size: 16px; font-weight: 700; color: #f1f5f9; display: flex; align-items: center; gap: 8px; }
+        .card-desc { color: #94a3b8; font-size: 14px; margin-bottom: 24px; line-height: 1.5; }
+        
+        .action-btn { 
+            width: 100%; padding: 14px; border-radius: 10px; border: none; font-weight: 700; font-size: 14px; 
+            cursor: pointer; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        .btn-green { background: #059669; color: #fff; }
+        .btn-green:hover { background: #047857; }
+        .btn-red { background: #dc2626; color: #fff; }
+        .btn-red:hover { background: #b91c1c; }
+        .btn-blue { background: #2563eb; color: #fff; }
+        .btn-blue:hover { background: #1d4ed8; }
+
+        /* Incident Log Table */
+        .log-section { background: #1e293b; border: 1px solid #334155; border-radius: 16px; overflow: hidden; margin-top: 40px; }
+        .log-header { padding: 20px 24px; background: #0f172a; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+        .log-header h3 { font-size: 16px; font-weight: 700; color: #f8fafc; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #1e293b; color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; padding: 16px 24px; text-align: left; border-bottom: 1px solid #334155; }
+        td { padding: 16px 24px; color: #e2e8f0; font-size: 14px; border-bottom: 1px solid #334155; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #334155; }
+        .severity-high { background: #fef2f2; color: #991b1b; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid #fecaca; }
+        .severity-low { background: #f0fdf4; color: #166534; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid #bbf7d0; }
+
+        /* Custom Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 9999;
+        }
+        .modal-box {
+            background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 32px; width: 90%; max-width: 420px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); text-align: center; animation: modalPop 0.3s ease-out;
+        }
+        @keyframes modalPop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .modal-box h3 { color: #f8fafc; font-size: 20px; font-weight: 800; margin-bottom: 12px; }
+        .modal-box p { color: #94a3b8; font-size: 15px; margin-bottom: 24px; line-height: 1.5; }
+        .modal-input {
+            width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #f8fafc;
+            font-size: 15px; margin-bottom: 24px; outline: none; font-family: 'Inter', sans-serif; text-align: center;
+        }
+        .modal-input:focus { border-color: #3b82f6; }
+        .modal-actions { display: flex; gap: 12px; justify-content: center; }
+        .modal-btn { padding: 12px 24px; border-radius: 8px; border: none; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; flex: 1; }
+        .btn-cancel { background: #334155; color: #f1f5f9; }
+        .btn-cancel:hover { background: #475569; }
+        .btn-confirm { background: #3b82f6; color: #fff; }
+        .btn-confirm:hover { background: #2563eb; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🛡️ Security Center</h1>
+        <a href="admin.html" class="back-btn">Return to Dashboard</a>
+    </div>
+
+    <div class="container">
+        <div class="status-banner">
+            <div class="status-text">
+                <h2>ISO/IEC 27001 Security Controls Enabled</h2>
+                <p>System is currently enforcing encryption, session timeouts, and activity logging.</p>
+            </div>
+            <div class="badge">COMPLIANT</div>
+        </div>
+
+        <div class="grid">
+            <!-- Backup -->
+            <div class="card">
+                <div>
+                    <div class="card-header">
+                        <h3>💾 Database Backup</h3>
+                        <span style="font-size: 20px;">🛡️ A.12</span>
+                    </div>
+                    <p class="card-desc">Download a complete snapshot of all sensitive data and configuration in an encrypted JSON array. Required for disaster recovery protocols.</p>
+                </div>
+                <button class="action-btn btn-blue" onclick="handleBackup()">Download Manual Backup (JSON)</button>
+            </div>
+
+            <!-- Incident Response -->
+            <div class="card" style="border-left: 4px solid #ef4444;">
+                <div>
+                    <div class="card-header">
+                        <h3>🚨 Breach Response</h3>
+                        <span style="font-size: 20px;">🛡️ A.16</span>
+                    </div>
+                    <p class="card-desc">In the event of a suspected security breach, initiate the global lock-down procedure to terminate all active sessions instantly and notify affected users.</p>
+                </div>
+                <button class="action-btn btn-red" onclick="handleBreach()">Initiate Global Lockdown</button>
+            </div>
+
+            <!-- Session Controls -->
+            <div class="card">
+                <div>
+                    <div class="card-header">
+                        <h3>📋 Session Controls</h3>
+                        <span style="font-size: 20px;">🛡️ A.9</span>
+                    </div>
+                    <p class="card-desc">Automatic inactivity session expiration (30m) is currently strictly enforced for Administrator accounts.</p>
+                </div>
+                <button class="action-btn btn-green" onclick="handleSessionTest()">Force Terminate My Session</button>
+            </div>
+        </div>
+
+        <div class="log-section">
+            <div class="log-header">
+                <h3>System Incident Log (Read-Only Audit Trail)</h3>
+                <button class="back-btn" onclick="loadIncidents()" style="background: #3b82f6; color: white;">Refresh Log</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Incident Type</th>
+                        <th>IP Address</th>
+                        <th>Severity</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="incidentLogTable">
+                    <tr><td colspan="5" style="text-align: center; color: #94a3b8; padding: 30px;">Loading authenticated incident logs...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Custom Modal -->
+    <div id="customModalOverlay" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modalTitle">Notice</h3>
+            <p id="modalMessage"></p>
+            <input type="text" id="modalInput" class="modal-input" autocomplete="off">
+            <div class="modal-actions">
+                <button class="modal-btn btn-cancel" id="modalCancelBtn">Cancel</button>
+                <button class="modal-btn btn-confirm" id="modalConfirmBtn">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/crypto-utils.js"></script>
+    <script src="js/incident-manager.js"></script>
+    <script>
+        function showModal({ title = 'Notice', message, type = 'alert', confirmText = 'OK', confirmStyle = 'btn-blue' }) {
+            return new Promise((resolve) => {
+                const overlay = document.getElementById('customModalOverlay');
+                const titleEl = document.getElementById('modalTitle');
+                const msgEl = document.getElementById('modalMessage');
+                const inputEl = document.getElementById('modalInput');
+                const cancelBtn = document.getElementById('modalCancelBtn');
+                const confirmBtn = document.getElementById('modalConfirmBtn');
+
+                titleEl.textContent = title;
+                msgEl.textContent = message;
+                
+                inputEl.style.display = type === 'prompt' ? 'block' : 'none';
+                inputEl.value = '';
+
+                cancelBtn.style.display = type === 'alert' ? 'none' : 'block';
+
+                confirmBtn.className = `modal-btn ${confirmStyle}`;
+                confirmBtn.textContent = confirmText;
+
+                overlay.style.display = 'flex';
+                if (type === 'prompt') inputEl.focus();
+
+                const cleanup = () => {
+                    overlay.style.display = 'none';
+                    confirmBtn.removeEventListener('click', onConfirm);
+                    cancelBtn.removeEventListener('click', onCancel);
+                };
+
+                const onConfirm = () => {
+                    cleanup();
+                    resolve(type === 'prompt' ? inputEl.value : true);
+                };
+
+                const onCancel = () => {
+                    cleanup();
+                    resolve(type === 'prompt' ? null : false);
+                };
+
+                confirmBtn.addEventListener('click', onConfirm);
+                cancelBtn.addEventListener('click', onCancel);
+            });
+        }
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!isAdmin()) {
+                window.location.href = 'login.html'; 
+                return;
+            }
+            if (typeof initInactivityTimer === 'function') initInactivityTimer();
+            await loadIncidents();
+        });
+
+        async function handleBackup() {
+            const confirmed = await showModal({
+                title: 'Confirm Backup',
+                message: 'Are you sure you want to download a complete manual backup?',
+                type: 'confirm',
+                confirmText: 'Download Backup',
+                confirmStyle: 'btn-blue'
+            });
+            if (confirmed) {
+                const res = await exportDataBackup('json');
+                if (res.success) {
+                    await showModal({ title: 'Success', message: 'Backup generated successfully.', type: 'alert', confirmStyle: 'btn-green' });
+                } else {
+                    await showModal({ title: 'Error', message: 'Failed to generate backup: ' + res.message, type: 'alert', confirmStyle: 'btn-red' });
+                }
+            }
+        }
+
+        async function handleBreach() {
+            const code = await showModal({
+                title: 'Initiate Global Lockdown',
+                message: 'WARNING: This will lock all users out and terminate sessions. Type "CONFIRM LOCKDOWN" to proceed:',
+                type: 'prompt',
+                confirmText: 'Lockdown System',
+                confirmStyle: 'btn-red'
+            });
+            
+            if (code === 'CONFIRM LOCKDOWN') {
+                try {
+                    await reportSecurityIncident('Admin Initiated Global Lockdown', 'manual_trigger');
+                    await showModal({ title: 'Lockdown Initiated', message: 'System has logged a critical breach incident. Sessions have been signaled to terminate on next reload.', type: 'alert', confirmStyle: 'btn-red' });
+                    await logActivity('Global Lockdown Initiated', 'Admin explicitly initiated a breach lockdown protocol.', 'critical');
+                } catch (e) {
+                    await showModal({ title: 'Error', message: 'Error enforcing lockdown rules.', type: 'alert', confirmStyle: 'btn-red' });
+                }
+            } else if (code !== null && code !== '') {
+                await showModal({ title: 'Cancelled', message: 'Incorrect confirmation code. Lockdown aborted.', type: 'alert', confirmStyle: 'btn-cancel' });
+            }
+        }
+
+        async function handleSessionTest() {
+            const confirmed = await showModal({
+                title: 'Terminate Session',
+                message: 'This will end your secure admin session. Proceed?',
+                type: 'confirm',
+                confirmText: 'End Session',
+                confirmStyle: 'btn-red'
+            });
+            if (confirmed) {
+                clearMFASession();
+                logoutUser();
+            }
+        }
+
+        async function loadIncidents() {
+            const tbody = document.getElementById('incidentLogTable');
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #94a3b8;">Loading...</td></tr>';
+            
+            try {
+                const data = await getSecurityIncidents(20);
+                
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #94a3b8; padding: 30px;">No critical security incidents recorded.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.map(inc => {
+                    const dateValue = inc.detected_at || inc.created_at;
+                    const date = dateValue ? new Date(dateValue).toLocaleString() : 'Unknown Date';
+                    const incidentType = inc.type || inc.incident_type || 'Unknown Incident';
+                    const ipAddress = inc.ip_address || '127.0.0.1';
+                    const badgeClass = inc.severity === 'high' || inc.severity === 'critical' ? 'severity-high' : 'severity-low';
+                    const severityLabel = inc.severity ? inc.severity.toUpperCase() : 'UNKNOWN';
+                    
+                    return `
+                        <tr>
+                            <td style="white-space: nowrap;">${date}</td>
+                            <td style="font-weight: 600;">${incidentType}</td>
+                            <td><span style="font-family: monospace; background: #0f172a; padding: 4px 8px; border-radius: 6px;">${ipAddress}</span></td>
+                            <td><span class="${badgeClass}">${severityLabel}</span></td>
+                            <td style="color: #64748b; text-transform: capitalize;">${inc.status || 'open'}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error("Failed to load incident logs: ", e);
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #ef4444; padding: 30px;">Failed to load incident logs.</td></tr>';
+            }
+        }
+    </script>
+</body>
+</html>
